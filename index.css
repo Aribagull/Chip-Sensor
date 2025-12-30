@@ -1,0 +1,16 @@
+
+
+/* SUCCESS progress bar */
+.Toastify__progress-bar--success {
+  background: #93c5fd !important;
+}
+
+/* ✅ SUCCESS tick icon COLOR FIX */
+.Toastify__toast--success .Toastify__toast-icon svg {
+  fill: #1464ce !important;
+}
+
+/* Optional: left border */
+.Toastify__toast--success {
+  border-left: 6px solid #2563eb;
+}
