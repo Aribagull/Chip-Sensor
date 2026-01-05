@@ -4,6 +4,9 @@ import { useParams, Link } from "react-router-dom";
 import { getAllStores } from "../../../Api/Stores/store";
 import { FiPhone, FiMail } from "react-icons/fi";
 import ClipLoader from "react-spinners/ClipLoader";
+import AdminSensorList from "./AdminSensorList";
+
+
 
 
 interface SubStore {
@@ -50,18 +53,28 @@ const statusDot = (status?: SubStore["status"]) => {
 
 const Toggle = ({ enabled }: { enabled: boolean }) => (
   <div
-    className={`w-11 h-6 flex items-center rounded-full p-1 transition ${
-      enabled ? "bg-blue-500" : "bg-gray-600"
-    }`}
+    className={`w-11 h-6 flex items-center rounded-full p-1 transition ${enabled ? "bg-blue-500" : "bg-gray-600"
+      }`}
   >
     <div
-      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${
-        enabled ? "translate-x-5" : ""
-      }`}
+      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition ${enabled ? "translate-x-5" : ""
+        }`}
     />
   </div>
 );
 
+
+const getSubStoreStatusColor = (sub: any) => {
+  if (!sub.sensors || sub.sensors.length === 0) {
+    return "bg-gray-400";
+  }
+
+  const hasOnSensor = sub.sensors.some(
+    (sensor: any) => sensor.status === "on"
+  );
+
+  return hasOnSensor ? "bg-green-500" : "bg-gray-400";
+};
 
 
 const AdminSubStores: React.FC = () => {
@@ -70,7 +83,6 @@ const AdminSubStores: React.FC = () => {
   const [expandedSubStore, setExpandedSubStore] = useState<string | null>(
     null
   );
-  
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -88,20 +100,26 @@ const AdminSubStores: React.FC = () => {
   }, [storeId]);
 
 
-  const toggleSubStore = (id: string) => {
-    setExpandedSubStore(expandedSubStore === id ? null : id);
+  const toggleSubStore = (subStoreId: string) => {
+    if (expandedSubStore === subStoreId) {
+      setExpandedSubStore(null);
+    } else {
+      setExpandedSubStore(subStoreId);
+    }
   };
 
+
+
   if (!store) {
-  return (
-    <div className="min-h-[60vh] flex justify-center items-center">
-      <ClipLoader
-        color="#0f41ccff"
-        size={50}
-      />
-    </div>
-  );
-}
+    return (
+      <div className="min-h-[60vh] flex justify-center items-center">
+        <ClipLoader
+          color="#0f41ccff"
+          size={50}
+        />
+      </div>
+    );
+  }
 
 
   return (
@@ -134,27 +152,32 @@ const AdminSubStores: React.FC = () => {
           >
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-3">
-                <span
-                  className={`h-3 w-3 rounded-full ${statusDot(
-                    sub.status
-                  )}`}
-                ></span>
+                 <span
+    className={`h-3 w-3 rounded-full ${getSubStoreStatusColor(sub)}`}
+  ></span>
                 <div>
                   <p className="font-semibold">{sub.name}</p>
                   <p className="text-gray-400 text-sm">
-                    {sub.activeSensors || 0} Active Sensor
-                    {sub.activeSensors && sub.activeSensors > 1 ? "s" : ""}
+                    {sub.sensors
+                      ? sub.sensors.filter((s: any) => s.status === "on").length
+                      : 0}{" "}
+                    Active Sensor
+                    {sub.sensors &&
+                      sub.sensors.filter((s: any) => s.status === "on").length > 1
+                      ? "s"
+                      : ""}
                   </p>
+
                 </div>
               </div>
               <p
                 className={`font-semibold ${sub.currentTemperature !== undefined
-                    ? sub.currentTemperature < 32
-                      ? "text-green-500"
-                      : sub.currentTemperature >= 38
-                        ? "text-yellow-500"
-                        : "text-gray-200"
-                    : "text-gray-200"
+                  ? sub.currentTemperature < 32
+                    ? "text-green-500"
+                    : sub.currentTemperature >= 38
+                      ? "text-yellow-500"
+                      : "text-gray-200"
+                  : "text-gray-200"
                   }`}
               >
                 {sub.currentTemperature !== undefined
@@ -165,28 +188,26 @@ const AdminSubStores: React.FC = () => {
 
             {/* Collapsible Content */}
             {expandedSubStore === sub._id && (
-              <div className="mt-4">
-                 {/* No Active Sensor Request Note */}
-                <div className="mt-4 flex items-center gap-2 
-bg-blue-50 dark:bg-gray-800 
-border border-blue-200 dark:border-gray-700 
-rounded-lg px-4 py-3 text-sm text-gray-700 dark:text-gray-400">
+              <div className="mt-4 space-y-4">
 
-                  <span className="text-blue-400">ℹ️</span>
-                  <span>
-                    No active sensors for this sub-store.
-                  </span>
-                </div>
+                {/* Sensors List */}
+               {expandedSubStore === sub._id && (
+  <div className="mt-4">
+    <AdminSensorList sensors={sub.sensors} />
+  </div>
+)}
+
+
                 {/* Alert Configuration */}
                 <div className="mt-6 bg-gray-100 dark:bg-gray-900 rounded-xl p-4">
 
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">SubStore Level Notification</h3>
                     <div
-  onClick={(e) => e.stopPropagation()}
->
-  <Toggle enabled={sub.notification_status === "on"} />
-</div>
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Toggle enabled={sub.notification_status === "on"} />
+                    </div>
 
                   </div>
 
@@ -202,7 +223,7 @@ rounded-lg px-4 py-3 text-sm text-gray-700 dark:text-gray-400">
                       <div className="text-sm text-gray-300 space-y-2">
                         <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
 
-                           Quick Alert – 15 min
+                          Quick Alert – 15 min
                         </div>
                         <div className="flex flex-col gap-2">
                           {sub.phoneNumbersLevel1.map((phone, index) => (
@@ -212,14 +233,14 @@ rounded-lg px-4 py-3 text-sm text-gray-700 dark:text-gray-400">
                             </div>
                           ))}
                         </div>
-                         <div className="flex flex-col gap-2">
-                                      {sub.emailRecipientsLevel1.map((email, index) => (
-                                        <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                                          <FiMail className="text-red-400 text-sm" />
-                                          <span>{email}</span>
-                                        </div>
-                                      ))}
-                                    </div>
+                        <div className="flex flex-col gap-2">
+                          {sub.emailRecipientsLevel1.map((email, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                              <FiMail className="text-red-400 text-sm" />
+                              <span>{email}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
@@ -234,25 +255,25 @@ rounded-lg px-4 py-3 text-sm text-gray-700 dark:text-gray-400">
                       <div className="text-sm text-gray-300 space-y-2">
                         <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
 
-                           Take Action – 20 min
+                          Take Action – 20 min
                         </div>
                         <div className="flex flex-col gap-2">
-                                     {sub.phoneNumbersLevel2.map((phone, index) => (
-                                       <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                                         <FiPhone className="text-red-400 text-sm" />
-                                         <span>{phone}</span>
-                                       </div>
-                                     ))}
-                                   </div>
+                          {sub.phoneNumbersLevel2.map((phone, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                              <FiPhone className="text-red-400 text-sm" />
+                              <span>{phone}</span>
+                            </div>
+                          ))}
+                        </div>
 
                         <div className="flex flex-col gap-2">
-                                      {sub.emailRecipientsLevel2.map((email, index) => (
-                                        <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                                          <FiMail className="text-red-400 text-sm" />
-                                          <span>{email}</span>
-                                        </div>
-                                      ))}
-                                    </div>
+                          {sub.emailRecipientsLevel2.map((email, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                              <FiMail className="text-red-400 text-sm" />
+                              <span>{email}</span>
+                            </div>
+                          ))}
+                        </div>
 
                       </div>
                     </div>
@@ -270,29 +291,29 @@ rounded-lg px-4 py-3 text-sm text-gray-700 dark:text-gray-400">
 
                           Daily / Weekly Reports
                         </div>
-                         <div className="flex flex-col gap-2">
-                                      {sub.phoneNumbersLevel3.map((phone, index) => (
-                                        <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                                          <FiPhone className="text-red-400 text-sm" />
-                                          <span>{phone}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                         <div className="flex flex-col gap-2">
-                                      {sub.emailRecipientsLevel1.map((email, index) => (
-                                        <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                                          <FiMail className="text-red-400 text-sm" />
-                                          <span>{email}</span>
-                                        </div>
-                                      ))}
-                                    </div>
+                        <div className="flex flex-col gap-2">
+                          {sub.phoneNumbersLevel3.map((phone, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                              <FiPhone className="text-red-400 text-sm" />
+                              <span>{phone}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {sub.emailRecipientsLevel1.map((email, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                              <FiMail className="text-red-400 text-sm" />
+                              <span>{email}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
 
                   </div>
                 </div>
-               
+
               </div>
 
 

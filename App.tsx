@@ -33,6 +33,7 @@ import NotificationStats from './pages/dashboard/admin/NotificationStats';
 import AdminSettings from './pages/dashboard/admin/AdminSettings';
 import Unauthorized from './pages/Unauthorized';
 import AdminSubStores from './pages/dashboard/admin/AdminSubStores';
+import SensorDetails from './components/SensorDetails';
 
 // Wrapper for Public Pages
 const PublicLayout: React.FC = () => (
@@ -88,7 +89,7 @@ const App: React.FC = () => {
               path="locations/:storeId/substores/:subStoreId"
               element={<LocationDetail />}
             />
-
+             <Route path="/dashboard/sensors/sensor/:sensorId" element={<SensorDetails/>} />
             <Route path="sensors" element={<Sensors />} />
             <Route path="history" element={<TemperatureHistory />} />
             <Route path="requests" element={<MyRequests />} />
@@ -102,7 +103,9 @@ const App: React.FC = () => {
             <Route path="locations" element={<AdminLocations />} />
             <Route path="/admin/locations/:storeId" element={<AdminSubStores />} />
 
+
             <Route path="locations/:id" element={<LocationDetail />} />
+            <Route path="/admin/sensors/sensor/:sensorId" element={<SensorDetails/>} />
             <Route path="sensors" element={<AdminSensors />} />
             <Route path="requests" element={<SensorRequests />} />
             <Route path="alerts" element={<AllAlerts />} />

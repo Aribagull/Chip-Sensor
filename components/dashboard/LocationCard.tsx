@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 import { MapPin, Box, Thermometer, Edit, Trash2, ChevronRight } from 'lucide-react';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
@@ -18,6 +19,7 @@ interface LocationCardProps {
 }
 
 const LocationCard: React.FC<LocationCardProps> = ({ location }) => {
+  const navigate = useNavigate();
   const sensorCount = location.subStores.reduce(
     (acc, sub) => acc + sub.sensors.length,
     0
@@ -31,6 +33,7 @@ const LocationCard: React.FC<LocationCardProps> = ({ location }) => {
   const [loadingDelete, setLoadingDelete] = useState(false);
 
   const openEditModal = () => {
+
     setStoreName(location.storeName);
     setStoreType(location.storeType);
     setAddress(location.address);
@@ -48,7 +51,7 @@ const LocationCard: React.FC<LocationCardProps> = ({ location }) => {
         address
       };
 
-      const res = await updateStore(location._id, payload); 
+      const res = await updateStore(location._id, payload);
 
       alert(res.message || 'Store updated successfully');
       setIsEditOpen(false);
@@ -82,33 +85,35 @@ const LocationCard: React.FC<LocationCardProps> = ({ location }) => {
 
   return (
     <>
-    <Link
-  to={`/dashboard/locations/${location._id}`}
-  state={{ storeName: location.storeName }}
-  className="block h-full"
->
-  <Card className="h-full rounded-xl border border-gray-200 dark:border-slate-700 hover:shadow-md transition">
-    {/* Header */}
-    <div className="flex justify-between items-start p-4">
-      <div>
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-          {location.storeName}
-        </h3>
 
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
-          <MapPin className="h-4 w-4 mr-1" />
-          {location.address}
-        </div>
-      </div>
+      <Card className="h-full rounded-xl border border-gray-200 dark:border-slate-700 hover:shadow-md transition">
+        {/* Header */}
+        <Link
+          to={`/dashboard/locations/${location._id}`}
+          state={{ storeName: location.storeName }}
+          className="block h-full"
+        >
+          <div className="flex justify-between items-start p-4">
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                {location.storeName}
+              </h3>
 
-      {/* Actions */}
-      <div
-        className="flex items-center gap-2"
-        onClick={(e) => e.preventDefault()}
-      >
-       <button
-  onClick={openEditModal}
-  className="
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <MapPin className="h-4 w-4 mr-1" />
+                {location.address}
+              </div>
+            </div>
+
+
+            {/* Actions */}
+            <div
+              className="flex items-center gap-2"
+              onClick={(e) => e.preventDefault()}
+            >
+              <button
+                onClick={openEditModal}
+                className="
     flex items-center gap-1.5
     px-2 py-1
     text-xs font-medium
@@ -121,59 +126,65 @@ const LocationCard: React.FC<LocationCardProps> = ({ location }) => {
     dark:hover:bg-blue-500/10
     transition
   "
->
-  <Edit className="h-4 w-4" />
-  Edit Store
-</button>
+              >
+                <Edit className="h-4 w-4" />
+                Edit Store
+              </button>
 
-        <button
-          onClick={handleDelete}
-          className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-500/10 flex  text-red-500 text-xs px-1 rounded-md items-center gap-1.5 border border-gray-300 dark:border-slate-600"
-          disabled={loadingDelete}
-        >
-          <Trash2 className="h-4 w-4 text-red-500" /> Delete Store
-        </button>
-      </div>
-    </div>
-
-    {/* Divider */}
-    <div className="border-t border-gray-200 dark:border-slate-700" />
-
-    {/* Sub-stores Section */}
-    <div className="p-4 space-y-3">
-      <p className="text-sm text-gray-500 dark:text-gray-400">
-        Sub-stores ({location.subStores.length})
-      </p>
-
-     {location.subStores.map((subStore) => (
-  <div
-    key={subStore._id}
-    onClick={(e) => {
-      e.preventDefault();     // Link ka default behavior roke
-      e.stopPropagation();    // Parent click se bache
-      window.location.hash =
-        `#/dashboard/locations/${location._id}/substores/${subStore._id}`;
-    }}
-    className="flex items-center justify-between
-      bg-gray-50 dark:bg-slate-700/50
-      px-3 py-2 rounded-lg
-      cursor-pointer
-      hover:bg-gray-100 dark:hover:bg-slate-600"
-  >
-
-          <span className="text-sm font-medium text-gray-900 dark:text-white">
-            {subStore.name}
-          </span>
-
-          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 gap-1">
-            {subStore.sensors?.length || 0} sensors
-            <ChevronRight className="h-4 w-4" />
+              <button
+                onClick={handleDelete}
+                className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-500/10 flex  text-red-500 text-xs px-1 rounded-md items-center gap-1.5 border border-gray-300 dark:border-slate-600"
+                disabled={loadingDelete}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" /> Delete Store
+              </button>
+            </div>
           </div>
+        </Link>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 dark:border-slate-700" />
+
+        {/* Sub-stores Section */}
+        <div className="p-4 space-y-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Sub-stores ({location.subStores.length})
+          </p>
+
+          {location.subStores.map((subStore) => (
+            <div
+              key={subStore._id}
+
+              onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(
+                  `/dashboard/locations/${location._id}/substores/${subStore._id}`,
+                  {
+                    state: {
+                      storeName: location.storeName,
+                      subStoreName: subStore.name
+                    }
+                  }
+                );
+              }}
+
+              className="flex items-center justify-between
+          bg-gray-50 dark:bg-slate-700/50
+          px-3 py-2 rounded-lg
+          cursor-pointer
+          hover:bg-gray-100 dark:hover:bg-slate-600"
+            >
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{subStore.name}</span>
+              <div className="flex items-center text-sm text-gray-500 gap-1">
+                {subStore.sensors?.length || 0} sensors
+                <ChevronRight className="h-4 w-4" />
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
-  </Card>
-</Link>
+      </Card>
+
 
 
       <Modal

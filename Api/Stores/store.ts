@@ -81,6 +81,14 @@ export const getAllStores = async () => {
 
 // store by customer id (only admin) 
 export const getCustomerStores = async (customerId: string) => {
-  const response = await api.get(`/auth/${customerId}/stores`);
-  return response.data.stores; 
+  const token = localStorage.getItem("token");
+
+  const response = await api.get(`/auth/${customerId}/stores`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log("API response:", response.data);
+  return response.data; 
 };
+

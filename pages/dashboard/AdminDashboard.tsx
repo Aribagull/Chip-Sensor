@@ -1,22 +1,108 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { adminAnalytics } from "../../Api/admin/dashboard";
 import { 
   Users, MapPin, Thermometer, Bell, ClipboardList, AlertTriangle, 
   ArrowRight, TrendingUp, TrendingDown, Activity, CheckCircle2,
   Clock, ChevronRight, Zap, Shield
 } from 'lucide-react';
-import { mockCustomers, mockLocations, mockAlerts, mockRequests } from '../../utils/mockData';
+import { Link } from 'react-router-dom';
+import CustomerChart from "./charts/CustomerChart";
+import DoughnutChart from "./charts/DoughnutChart";
+
+
+
+
+interface Alert {
+  customerName: string;
+  locationName: string;
+  subStoreName: string;
+  issue: string;
+  level: 1 | 2 | 3;
+  timeAgo: string;
+}
+
+const alerts: Alert[] = [
+  {
+    customerName: "Customer 1",
+    locationName: "Location A",
+    subStoreName: "SubStore 1",
+    issue: "Sensor offline",
+    level: 1,
+    timeAgo: "5 min ago",
+  },
+  {
+    customerName: "Customer 2",
+    locationName: "Location B",
+    subStoreName: "SubStore 2",
+    issue: "Temperature high",
+    level: 2,
+    timeAgo: "10 min ago",
+  },
+  {
+    customerName: "Customer 3",
+    locationName: "Location C",
+    subStoreName: "SubStore 3",
+    issue: "Battery low",
+    level: 3,
+    timeAgo: "15 min ago",
+  },
+];
 
 const AdminDashboard: React.FC = () => {
-  // Calculate Stats
-  const totalCustomers = mockCustomers.length;
-  const totalLocations = mockLocations.length;
-  const totalSubStores = mockLocations.reduce((acc, loc) => acc + loc.subStores.length, 0);
-  const totalSensors = mockLocations.reduce((acc, loc) => acc + loc.subStores.reduce((sAcc, sub) => sAcc + sub.sensors.length, 0), 0);
-  const sensorsOnline = totalSensors - 2; // Mock offline count
-  const pendingRequests = mockRequests.filter(r => r.status === 'pending').length;
-  const activeAlerts = mockAlerts.filter(a => a.status === 'active');
-  const criticalAlerts = activeAlerts.filter(a => a.level === 1).length;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [overall, setOverall] = useState<any>(null);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [chartRange, setChartRange] = useState<'7days' | '30days'>('7days');
+
+
+  useEffect(() => {
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      const data = await adminAnalytics();
+
+      setCustomers(data.customers);
+      setOverall(data.overall);
+    } catch (err: any) {
+      setError(err.message || 'Dashboard load failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboard();
+}, []);
+
+
+if (loading) {
+  return <div className="p-6 text-center">Loading dashboard...</div>;
+}
+
+if (error) {
+  return <div className="p-6 text-center text-red-500">{error}</div>;
+}
+
+
+const totalCustomers = overall?.totalCustomers ?? 0;
+const totalLocations = overall?.totalStores ?? 0;
+const totalSubStores = overall?.totalSubStores ?? 0;
+const totalSensors = overall?.totalSensors ?? 0;
+
+const sensorsOnline = overall?.activeSensors ?? 0;
+const pendingRequests = overall?.pendingRequests ?? 0;
+
+// last 30 days (example)
+const last30DaysCustomers = Array.from({ length: 30 }, (_, i) => ({
+  date: `2026-01-${i + 1 < 10 ? '0' + (i + 1) : i + 1}`,
+  count: Math.floor(Math.random() * 15) + 1,
+}));
+
+// chart data now only last 30 days
+const chartData = last30DaysCustomers;
+
+
+
 
   // Get current time greeting
   const getGreeting = () => {
@@ -57,12 +143,15 @@ const AdminDashboard: React.FC = () => {
                   <Activity className="w-5 h-5 text-green-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-white">{sensorsOnline}/{totalSensors}</p>
+                  <p className="text-2xl font-bold text-white">
+  {sensorsOnline}/{totalSensors}
+</p>
+
                   <p className="text-xs text-slate-400">Sensors Online</p>
                 </div>
               </div>
               
-              {criticalAlerts > 0 && (
+              {/* {criticalAlerts > 0 && (
                 <div className="bg-red-500/20 backdrop-blur-sm border border-red-500/30 rounded-2xl px-5 py-3 flex items-center space-x-3 animate-pulse">
                   <div className="w-10 h-10 bg-red-500/30 rounded-xl flex items-center justify-center">
                     <AlertTriangle className="w-5 h-5 text-red-400" />
@@ -72,7 +161,7 @@ const AdminDashboard: React.FC = () => {
                     <p className="text-xs text-red-300">Critical Alerts</p>
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
@@ -80,39 +169,43 @@ const AdminDashboard: React.FC = () => {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <StatCard 
-          label="Customers"
-          value={totalCustomers}
-          icon={Users}
-          trend="+2 this month"
-          trendUp={true}
-          color="blue"
-        />
-        <StatCard 
-          label="Locations"
-          value={totalLocations}
-          icon={MapPin}
-          trend="+5 this month"
-          trendUp={true}
-          color="indigo"
-        />
-        <StatCard 
-          label="Sub-Stores"
-          value={totalSubStores}
-          icon={Thermometer}
-          trend="12 active alerts"
-          trendUp={false}
-          color="purple"
-        />
-        <StatCard 
-          label="Pending Requests"
-          value={pendingRequests}
-          icon={ClipboardList}
-          trend="Needs attention"
-          trendUp={false}
-          color="orange"
-          highlight={pendingRequests > 0}
-        />
+       <StatCard 
+  label="Customers"
+  value={totalCustomers}
+  icon={Users}
+  trend="Total customers"
+  trendUp={true}
+  color="blue"
+/>
+
+<StatCard 
+  label="Locations"
+  value={totalLocations}
+  icon={MapPin}
+  trend="Total stores"
+  trendUp={true}
+  color="indigo"
+/>
+
+<StatCard 
+  label="Sub-Stores"
+  value={totalSubStores}
+  icon={Thermometer}
+  trend="All substores"
+  trendUp={true}
+  color="purple"
+/>
+
+<StatCard 
+  label="Pending Requests"
+  value={pendingRequests}
+  icon={ClipboardList}
+  trend="Needs attention"
+  trendUp={false}
+  color="orange"
+  highlight={pendingRequests > 0}
+/>
+
       </div>
 
       {/* Main Content Grid */}
@@ -120,49 +213,43 @@ const AdminDashboard: React.FC = () => {
         
         {/* Active Alerts - Takes 2 columns */}
         <div className="xl:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center">
-                <Bell className="w-5 h-5 text-red-600 dark:text-red-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Active Alerts</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{activeAlerts.length} alerts need attention</p>
-              </div>
-            </div>
-            <Link 
-              to="/admin/alerts"
-              className="text-sm font-medium text-primary hover:text-blue-700 dark:text-blue-400 flex items-center group"
-            >
-              View All
-              <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
+       <div className="mt-8 space-y-6 xl:col-span-2">
+  <CustomerChart data={chartData} title="Customers Last 30 Days" />
+</div>
 
-          {activeAlerts.length === 0 ? (
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-100 dark:border-green-800/30 rounded-2xl p-8 text-center">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-1">All Systems Healthy</h3>
-              <p className="text-green-700 dark:text-green-300 text-sm">No active alerts at this time</p>
+ <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-md flex gap-6">
+      {/* Left side: Doughnut Chart */}
+      <div className="w-1/3 flex flex-col items-center justify-center">
+        <DoughnutChart alerts={alerts} />
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Alerts Summary
+        </p>
+      </div>
+
+      {/* Right side: Alerts List */}
+      <div className="w-2/3 space-y-3 max-h-64 overflow-y-auto">
+        {alerts.map((alert, idx) => (
+          <div
+            key={idx}
+            className="p-3 bg-gray-100 dark:bg-slate-700 rounded-xl flex justify-between items-start hover:shadow-md transition"
+          >
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white">
+                {alert.customerName} → {alert.subStoreName}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{alert.issue}</p>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {activeAlerts.slice(0, 4).map((alert, index) => (
-                <AlertCard key={alert.id} alert={alert} index={index} />
-              ))}
-              
-              {activeAlerts.length > 4 && (
-                <Link 
-                  to="/admin/alerts"
-                  className="block text-center py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-blue-400 transition-colors"
-                >
-                  +{activeAlerts.length - 4} more alerts
-                </Link>
-              )}
+            <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400">
+              <Clock className="w-3 h-3 mb-1" />
+              {alert.timeAgo}
             </div>
-          )}
+          </div>
+        ))}
+      </div>
+    </div>
+
+
+
         </div>
 
         {/* Quick Actions Sidebar */}

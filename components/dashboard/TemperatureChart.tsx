@@ -1,53 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
-const TemperatureChart: React.FC = () => {
-  // Mock data points for a simple SVG line chart
-  const data = [0, 2, -1, -2, -3, -1, 1, 3, 2, 0, -2, -4];
-  const max = 5;
-  const min = -5;
-  const width = 600;
-  const height = 200;
-  
-  // Normalize data to fit height
-  const range = max - min;
-  const points = data.map((val, i) => {
-    const x = (i / (data.length - 1)) * width;
-    const y = height - ((val - min) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-  const zeroY = height - ((0 - min) / range) * height;
+interface Props {
+  data: number[];
+  labels: string[];
+  minTemp?: number;
+  maxTemp?: number;
+}
+
+const TemperatureChart: React.FC<Props> = ({ data, labels, minTemp, maxTemp }) => {
+  const [isDark, setIsDark] = useState(document.body.classList.contains('dark'));
+
+  // Observe dark mode toggle
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.body.classList.contains('dark'));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const chartData = {
+    labels,
+    datasets: [
+      {
+        label: 'Temperature (°C)',
+        data,
+        borderColor: '#3b82f6', // Blue line (CustomerChart style)
+        backgroundColor: 'rgba(59,130,246,0.2)', // Gradient fill
+        tension: 0.4, // Smooth line
+        pointRadius: 3,
+        pointBackgroundColor: '#3b82f6',
+        fill: true,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx: any) => `${ctx.raw} °C`,
+        },
+        backgroundColor: isDark ? '#1f2937' : '#f9fafb',
+        titleColor: isDark ? '#fff' : '#111827',
+        bodyColor: isDark ? '#fff' : '#111827',
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: isDark ? '#fff' : '#4b5563' },
+        grid: {
+          color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+          lineWidth: 1,
+        },
+      },
+      y: {
+        min: minTemp,
+        max: maxTemp,
+        ticks: { color: isDark ? '#fff' : '#4b5563', callback: (v: any) => `${v}°C` },
+        grid: {
+          color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+          lineWidth: 1,
+        },
+      },
+    },
+  };
 
   return (
-    <div className="w-full h-full overflow-hidden">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-48">
-            {/* Background Grid Lines */}
-            <line x1="0" y1="0" x2={width} y2="0" stroke="#e5e7eb" strokeWidth="1" />
-            <line x1="0" y1={height/2} x2={width} y2={height/2} stroke="#e5e7eb" strokeWidth="1" />
-            <line x1="0" y1={height} x2={width} y2={height} stroke="#e5e7eb" strokeWidth="1" />
-
-            {/* Threshold Areas */}
-            <rect x="0" y="0" width={width} height={height * 0.2} fill="red" opacity="0.1" />
-            <rect x="0" y={height * 0.8} width={width} height={height * 0.2} fill="blue" opacity="0.1" />
-
-            {/* Zero Line */}
-            <line x1="0" y1={zeroY} x2={width} y2={zeroY} stroke="#9ca3af" strokeDasharray="4" />
-
-            {/* The Data Line */}
-            <polyline
-                fill="none"
-                stroke="#2563eb"
-                strokeWidth="3"
-                points={points}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
-        <div className="flex justify-between text-xs text-gray-500 mt-2">
-            <span>24h ago</span>
-            <span>12h ago</span>
-            <span>Now</span>
-        </div>
+    <div className="h-56 w-full rounded-xl bg-white dark:bg-slate-800 p-3 shadow-md">
+      <Line data={chartData} options={options} />
     </div>
   );
 };

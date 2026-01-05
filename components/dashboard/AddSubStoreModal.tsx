@@ -26,17 +26,17 @@ const AddSubStoreModal: React.FC<Props> = ({
 
   // ---------------- Validation ----------------
   const validatePhoneImmediate = (value: string) => {
-  if (!value) return '';
-  if (/[^0-9+]/.test(value)) return 'Phone number can only contain digits';
-  return '';
-};
+    if (!value) return '';
+    if (/[^0-9+]/.test(value)) return 'Phone number can only contain digits';
+    return '';
+  };
 
 
-const validatePhoneOnBlur = (value: string) => {
-  if (!value) return 'Phone number is required';
-  if (!/^\+\d{7,15}$/.test(value)) return 'Phone number must start with + and contain 7-15 digits';
-  return '';
-};
+  const validatePhoneOnBlur = (value: string) => {
+    if (!value) return 'Phone number is required';
+    if (!/^\+\d{7,15}$/.test(value)) return 'Phone number must start with + and contain 7-15 digits';
+    return '';
+  };
 
   const validateEmail = (value: string) => {
     if (!value) return 'Email is required';
@@ -107,22 +107,27 @@ const validatePhoneOnBlur = (value: string) => {
           {phones.map((phone, idx) => (
             <div key={idx} className="flex flex-col gap-1 mt-2 w-full">
               <div className="flex items-center gap-2 w-full">
-               <Input
-  value={phone}
-  onChange={(e) => {
-    handleDynamicChange(level, 'phone', idx, e.target.value);
-   
-    const error = validatePhoneImmediate(e.target.value);
-    setErrors((prev) => ({ ...prev, [`phone-${level}-${idx}`]: error }));
-  }}
-  onBlur={(e) => {
-    
-    const error = validatePhoneOnBlur(e.target.value);
-    setErrors((prev) => ({ ...prev, [`phone-${level}-${idx}`]: error }));
-  }}
-  placeholder="+XXXXXXXXXXX"
-  className="flex-1"
-/>
+                <Input
+                  type="tel"
+                  inputMode="numeric"
+                  value={phone}
+                  onChange={(e) => {
+
+                    const cleanedValue = e.target.value.replace(/[^0-9+]/g, '');
+
+                    handleDynamicChange(level, 'phone', idx, cleanedValue);
+
+                    const error = validatePhoneImmediate(cleanedValue);
+                    setErrors((prev) => ({ ...prev, [`phone-${level}-${idx}`]: error }));
+                  }}
+                  onBlur={(e) => {
+                    const error = validatePhoneOnBlur(e.target.value);
+                    setErrors((prev) => ({ ...prev, [`phone-${level}-${idx}`]: error }));
+                  }}
+                  placeholder="+XXXXXXXXXXX"
+                  className="flex-1"
+                />
+
 
                 {idx > 0 && (
                   <Button
@@ -197,16 +202,24 @@ const validatePhoneOnBlur = (value: string) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const cleanArrayOrRemove = (arr?: string[]) => {
+  const cleaned = (arr || []).filter(item => item && item.trim() !== '');
+  return cleaned.length > 0 ? cleaned : undefined; 
+};
+
+
+
     const payload = {
       name: form.name,
       location: form.location,
       notification_status: form.notificationStatus ? "on" : "off",
-      phoneNumbersLevel1: form.phoneNumbersLevel1 || [],
-      phoneNumbersLevel2: form.phoneNumbersLevel2 || [],
-      phoneNumbersLevel3: form.phoneNumbersLevel3 || [],
-      emailRecipientsLevel1: form.emailRecipientsLevel1 || [],
-      emailRecipientsLevel2: form.emailRecipientsLevel2 || [],
-      emailRecipientsLevel3: form.emailRecipientsLevel3 || [],
+      phoneNumbersLevel1: cleanArrayOrRemove(form.phoneNumbersLevel1),
+      phoneNumbersLevel2: cleanArrayOrRemove(form.phoneNumbersLevel2),
+      phoneNumbersLevel3: cleanArrayOrRemove(form.phoneNumbersLevel3),
+
+      emailRecipientsLevel1: cleanArrayOrRemove(form.emailRecipientsLevel1),
+      emailRecipientsLevel2: cleanArrayOrRemove(form.emailRecipientsLevel2),
+      emailRecipientsLevel3: cleanArrayOrRemove(form.emailRecipientsLevel3),
     };
 
     onSubmit(payload); // API call
@@ -216,7 +229,6 @@ const validatePhoneOnBlur = (value: string) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="5xl" title="Add New Sub-Store">
       <form className="space-y-4" onSubmit={handleSubmit}>
-        {/* Sub-Store Name & Location */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Input label="Sub-Store Name" name="name" value={form.name} onChange={onChange} required />
@@ -225,22 +237,18 @@ const validatePhoneOnBlur = (value: string) => {
             <Input label="Location" name="location" value={form.location} onChange={onChange} />
           </div>
         </div>
-
-        {/* Notification Toggle */}
         <div
-  onClick={() =>
-    onChange({ target: { name: 'notificationStatus', type: 'checkbox', checked: !form.notificationStatus } })
-  }
-  className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-    form.notificationStatus ? 'bg-green-500' : 'bg-gray-300'
-  }`}
->
-  <div
-    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-      form.notificationStatus ? 'translate-x-6' : 'translate-x-0'
-    }`}
-  ></div>
-</div>
+          onClick={() =>
+            onChange({ target: { name: 'notificationStatus', type: 'checkbox', checked: !form.notificationStatus } })
+          }
+          className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${form.notificationStatus ? 'bg-green-500' : 'bg-gray-300'
+            }`}
+        >
+          <div
+            className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${form.notificationStatus ? 'translate-x-6' : 'translate-x-0'
+              }`}
+          ></div>
+        </div>
 
 
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect  } from 'react';
-import { useParams, Link, useLocation, } from 'react-router-dom';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
 import { MapPin, Edit2, Plus, ArrowLeft, Thermometer, DoorOpen, Wifi, CheckCircle2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import SubStoreAccordion from '../../components/dashboard/SubStoreAccordion';
@@ -35,6 +35,7 @@ interface LocationType {
 }
 
 const LocationDetail: React.FC = () => {
+  const navigate = useNavigate();
   const locationPath = useLocation();
   const isAdmin = locationPath.pathname.includes('/admin');
 
@@ -68,29 +69,30 @@ const LocationDetail: React.FC = () => {
 
 const [selectedSubStore, setSelectedSubStore] = useState<SubStore | null>(null);
 
- useEffect(() => {
-    const fetchLocation = async () => {
-      if (!storeId) return;
-      setLoading(true);
-      try {
-        const storeData = await getStoreById(storeId);
-        storeData.subStores = storeData.subStores || [];
-        setLocation(storeData);
+useEffect(() => {
+  const fetchLocation = async () => {
+    if (!storeId) return;
+    setLoading(true);
+    try {
+      const storeData = await getStoreById(storeId);
+      storeData.subStores = storeData.subStores || [];
+      setLocation(storeData);
 
-        if (subStoreId) {
-          const sub = storeData.subStores.find(s => s._id === subStoreId);
-          setSelectedSubStore(sub || null);
-        } else {
-          setSelectedSubStore(null);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+      if (subStoreId) {
+        const sub = storeData.subStores.find(s => s._id === subStoreId);
+        setSelectedSubStore(sub || null);
+      } else {
+        setSelectedSubStore(null);
       }
-    };
-    fetchLocation();
-  }, [storeId, subStoreId]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchLocation();
+}, [storeId, subStoreId]);
+
 
 
 
@@ -259,14 +261,16 @@ const [selectedSubStore, setSelectedSubStore] = useState<SubStore | null>(null);
      <div className="grid grid-cols-1 gap-4">
   {subStoresToShow.map(subStore => (
     <SubStoreAccordion
-      key={subStore._id}
-      subStore={subStore}
-      onRequestSensor={() => handleRequestSensor(subStore)}
-      onEdit={() => handleEditSubStore(subStore)}
-      isAdmin={isAdmin}
-      onClick={() => setSelectedSubStore(subStore)}
-       isSelected={selectedSubStore?._id === subStore._id}
-    />
+  key={subStore._id}
+  subStore={subStore}
+  onRequestSensor={() => handleRequestSensor(subStore)}
+  onEdit={() => handleEditSubStore(subStore)}
+  isAdmin={isAdmin}
+  navigateToSubStore={true}
+  onClick={() => navigate(`${storeId}/substore/${subStore._id}`)}
+  isSelected={selectedSubStore?._id === subStore._id}
+/>
+
   ))}
 </div>
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertTriangle, Thermometer, DoorOpen, Settings, Info, Zap, Box, Phone, Mail, Activity, Edit, Trash2, } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertTriangle, Thermometer, DoorOpen, Settings, Info, Zap, Box, Phone, Mail, Activity, Edit, Trash2, Eye} from 'lucide-react';
 import { SubStore } from '../../types';
 import Button from '../ui/Button';
 import Toggle from '../ui/Toggle';
@@ -15,6 +15,7 @@ interface SubStoreAccordionProps {
    subStore: SubStore;
    onRequestSensor: (subStoreName: string) => void;
    isAdmin?: boolean;
+    navigateToSubStore?: boolean;
 }
 
 const SubStoreAccordion: React.FC<SubStoreAccordionProps> = ({ subStore, onRequestSensor, isAdmin = false }) => {
@@ -46,8 +47,8 @@ const SubStoreAccordion: React.FC<SubStoreAccordionProps> = ({ subStore, onReque
    };
 
 
-   
-const notificationEnabled = subStore.notification_status === 'on';
+const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null);
+   const notificationEnabled = subStore.notification_status === 'on';
 
    const Toggle = ({ enabled }: { enabled: boolean }) => (
       <div
@@ -101,7 +102,12 @@ const notificationEnabled = subStore.notification_status === 'on';
             }}
          >
             <div className="flex items-center gap-4">
-               <div className={`h-3 w-3 rounded-full ${getStatusBg(subStore.status)} ring-4 ring-opacity-20 ${subStore.status === 'critical' ? 'ring-red-500' : 'ring-transparent'}`} />
+               <div
+                  className={`h-3 w-3 rounded-full ${subStore.sensors.length > 0 ? 'bg-green-500' : 'bg-gray-400'
+                     } ring-4 ring-opacity-20 ${subStore.sensors.some(sensor => sensor.status === 'critical') ? 'ring-red-500' : 'ring-transparent'
+                     }`}
+               />
+
                <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-none">{subStore.name}</h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 flex items-center font-medium">
@@ -174,133 +180,48 @@ const notificationEnabled = subStore.notification_status === 'on';
          {/* Expanded Content */}
          {isExpanded && (
             <>
-              {!hasSensors && (
-  <>
-    {/* Request message / button */}
-    <div className="p-12 flex flex-col items-center justify-center text-center">
-      <Box className="h-12 w-12 text-blue-500 mb-4" />
-      {!requestSubmitted ? (
-        <>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-            No sensors installed
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Please request a new sensor to start monitoring this store.
-          </p>
 
-          <Button
-            variant="secondary"
-            className="text-blue-600 border-blue-200 dark:border-blue-900"
-            onClick={() => {
-              onRequestSensor(subStore.name);
-              setRequestSubmitted(true);
-            }}
-          >
-            <Box className="h-4 w-4 mr-2" />
-            Request New Sensor
-          </Button>
-        </>
-      ) : (
-        <>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-            Your sensor request has been processed
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
-            Our team has received your request. You will be notified once the sensor is approved and installed.
-          </p>
-        </>
-      )}
-    </div>
+               {!hasSensors && (
+                  <>
+                     {/* Request message / button */}
+                     <div className="p-12 flex flex-col items-center justify-center text-center">
+                        <Box className="h-12 w-12 text-blue-500 mb-4" />
+                        {!requestSubmitted ? (
+                           <>
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                 No sensors installed
+                              </h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                                 Please request a new sensor to start monitoring this store.
+                              </p>
 
-    {/* Level Notification - hamesha show */}
-    <div className="mt-6 bg-gray-100 dark:bg-gray-900 rounded-xl p-4 m-5">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">SubStore Level Notification</h3>
-        <Toggle enabled={notificationEnabled} />
-      </div>
+                              <Button
+                                 variant="secondary"
+                                 className="text-blue-600 border-blue-200 dark:border-blue-900"
+                                 onClick={() => {
+                                    onRequestSensor(subStore.name);
+                                    setRequestSubmitted(true);
+                                 }}
+                              >
+                                 <Box className="h-4 w-4 mr-2" />
+                                 Request New Sensor
+                              </Button>
+                           </>
+                        ) : (
+                           <>
+                              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                 Your sensor request has been processed
+                              </h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
+                                 Our team has received your request. You will be notified once the sensor is approved and installed.
+                              </p>
+                           </>
+                        )}
+                     </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Level 1 */}
-        <div className="rounded-xl p-4 bg-white dark:bg-gray-800 shadow-soft dark:shadow-none border border-red-300 dark:border-red-700 bg-gradient-to-b from-red-100 dark:from-red-900/40 to-white dark:to-gray-800">
-          <p className="text-red-400 font-semibold mb-2">Level 1: Critical</p>
-          <div className="text-sm text-gray-300 space-y-2">
-            <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
-              Quick Alert – 15 min
-            </div>
-            <div className="flex flex-col gap-2">
-              {subStore.phoneNumbersLevel1.map((phone, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                  <FiPhone className="text-red-400 text-sm" />
-                  <span>{phone}</span>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col gap-2">
-              {subStore.emailRecipientsLevel1.map((email, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                  <FiMail className="text-red-400 text-sm" />
-                  <span>{email}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        {/* Level 2 */}
-        <div className="rounded-xl p-4 bg-white dark:bg-gray-800 shadow-soft dark:shadow-none border border-yellow-300 dark:border-yellow-600 bg-gradient-to-b from-yellow-100 dark:from-yellow-900/40 to-white dark:to-gray-800">
-          <p className="text-yellow-400 font-semibold mb-2">Level 2: Warning</p>
-          <div className="text-sm text-gray-300 space-y-2">
-            <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
-              Take Action – 20 min
-            </div>
-            <div className="flex flex-col gap-2">
-              {subStore.phoneNumbersLevel2.map((phone, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                  <FiPhone className="text-red-400 text-sm" />
-                  <span>{phone}</span>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col gap-2">
-              {subStore.emailRecipientsLevel2.map((email, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                  <FiMail className="text-red-400 text-sm" />
-                  <span>{email}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Level 3 */}
-        <div className="rounded-xl p-4 bg-white dark:bg-gray-800 shadow-soft dark:shadow-none border border-blue-300 dark:border-blue-600 bg-gradient-to-b from-blue-100 dark:from-blue-900/40 to-white dark:to-gray-800">
-          <p className="text-blue-400 font-semibold mb-2">Level 3: Info</p>
-          <div className="text-sm text-gray-300 space-y-2">
-            <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
-             Daily / Weekly Reports
-            </div>
-            <div className="flex flex-col gap-2">
-              {subStore.phoneNumbersLevel3.map((phone, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                  <FiPhone className="text-red-400 text-sm" />
-                  <span>{phone}</span>
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-col gap-2">
-              {subStore.emailRecipientsLevel3.map((email, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
-                  <FiMail className="text-red-400 text-sm" />
-                  <span>{email}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </>
-)}
+                  </>
+               )}
 
 
 
@@ -309,52 +230,7 @@ const notificationEnabled = subStore.notification_status === 'on';
 
                      {/* Dashboard Row */}
                      <div className="p-6 bg-gray-50/50 dark:bg-slate-900/30">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                           {/* Left: Sensor List */}
-                           <div className="lg:col-span-1 space-y-3">
-                              <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Live Sensor Data</h4>
-                              {subStore.sensors.map((sensor) => (
-                                 <div key={sensor.id} className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-gray-100 dark:border-slate-700 flex items-center justify-between shadow-sm">
-                                    <div className="flex items-center">
-                                       <div className={`p-2 rounded-lg mr-3 ${sensor.type === 'temp' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'}`}>
-                                          {sensor.type === 'temp' ? <Thermometer className="h-4 w-4" /> : <DoorOpen className="h-4 w-4" />}
-                                       </div>
-                                       <div>
-                                          <p className="text-sm font-bold text-gray-900 dark:text-white">{sensor.name}</p>
-                                          <p className="text-xs text-gray-500 dark:text-gray-400">{sensor.status === 'online' ? '● Online' : '○ Offline'}</p>
-                                       </div>
-                                    </div>
-                                    <span className="font-mono font-bold text-gray-800 dark:text-gray-200">{sensor.value}</span>
-                                 </div>
-                              ))}
-                           </div>
-
-                           {/* Right: Chart */}
-                           <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm">
-                              <div className="flex items-center justify-between mb-4">
-                                 <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">24h Temperature Trend</h4>
-                                 <div className="flex gap-2">
-                                    <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">Last 24h</span>
-                                 </div>
-                              </div>
-                              <div className="h-40">
-                                 <TemperatureChart />
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-
-                     {/* Configuration Section */}
-                     <div className="p-6">
-                        <div className="flex items-center mb-6">
-                           <Settings className="h-5 w-5 text-gray-400 dark:text-gray-500 mr-2" />
-                           <h3 className="text-lg font-bold text-gray-900 dark:text-white">Alert Configuration</h3>
-                        </div>
-
-
-                        {/* Footer Actions */}
-                        <div className="mt-8 flex justify-end items-center border-t border-gray-100 dark:border-slate-700 pt-4">
+                        <div className=" flex justify-end items-center mb-10  pt-4">
                            {isAdmin ? (
                               <Button size="sm">Save Configuration</Button>
                            ) : (
@@ -376,9 +252,226 @@ const notificationEnabled = subStore.notification_status === 'on';
 
                            )}
                         </div>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+
+
+                         {/* Left: Sensor List */}
+<div className="lg:col-span-1 space-y-3">
+  <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+    Live Sensor Data
+  </h4>
+
+  {subStore.sensors.map((sensor) => (
+    <div
+      key={sensor._id}
+      onClick={() => setSelectedSensor(sensor)} 
+      className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-gray-100 dark:border-slate-700 flex items-center justify-between shadow-sm"
+    >
+      <div className="flex items-center">
+        <div
+          className={`p-2 rounded-lg mr-3 ${
+            sensor.type === 'temp'
+              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+              : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+          }`}
+        >
+          {sensor.type === 'temp' ? (
+            <Thermometer className="h-4 w-4" />
+          ) : (
+            <DoorOpen className="h-4 w-4" />
+          )}
+        </div>
+
+        <div>
+          <p className="text-sm font-bold text-gray-900 dark:text-white">
+            {sensor.sensorName}
+          </p>
+
+          {/* Status with color circle */}
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                sensor.status === 'on'
+                  ? 'bg-green-500'
+                  : 'bg-gray-400'
+              }`}
+            />
+            <span className="text-gray-500 dark:text-gray-400">
+              {sensor.status === 'on' ? 'Online' : 'Offline'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <span className="font-mono font-bold text-gray-800 dark:text-gray-200">
+        {sensor.currentTempC.toFixed(1)}°C
+      </span>
+    </div>
+  ))}
+</div>
+
+
+
+     {/* Right: Chart */}
+<div className="lg:col-span-2 bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm">
+    {/* Sensor Details Link */}
+  {selectedSensor && (
+    <div className="mb-3 flex justify-end">
+ <button
+  className="flex items-center gap-1 text-blue-600 dark:text-white text-sm font-medium dark:hover:text-blue-600 border border-gray-300 px-2 py-1 rounded hover:border-blue-600"
+  onClick={() => {
+    if (!selectedSensor || !selectedSensor._id) {
+      return;
+    }
+    navigate(`/dashboard/sensors/sensor/${selectedSensor._id}`);
+  }}
+>
+  <Eye className="h-4 w-4" />
+  View Details
+</button>
+
+
+
+</div>
+
+  )}
+  <div className="flex items-center justify-between mb-4">
+   <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+  {subStore.sensors.find(sensor => sensor.temperatureRecords.length > 0)?.sensorName || "Sensor"} - 24h Temperature Data
+</h4>
+
+    <div className="flex gap-2">
+      <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
+        Last 24h
+      </span>
+    </div>
+  </div>
+
+  <div className="h-56">
+    {selectedSensor && selectedSensor.temperatureRecords && selectedSensor.temperatureRecords.length > 0 ? (
+      <TemperatureChart
+  data={selectedSensor?.temperatureRecords.map(r => r.temperatureC) || []}
+  labels={selectedSensor?.temperatureRecords.map(r =>
+    new Date(r.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  ) || []}
+  minTemp={selectedSensor?.minTempF}
+  maxTemp={selectedSensor?.maxTempF}
+/>
+
+
+    ) : (
+      <p className="text-sm text-gray-400 text-center">
+        No temperature data available
+      </p>
+    )}
+  </div>
+  
+</div>
+
+
+
+
+                        </div>
+                     </div>
+
+                     {/* Configuration Section */}
+                     <div className="p-6">
+                        <div className="flex items-center">
+                           <Settings className="h-5 w-5 text-gray-400 dark:text-gray-500 mr-2" />
+                           <h3 className="text-lg font-bold text-gray-900 dark:text-white">Alert Configuration</h3>
+                        </div>
+
                      </div>
                   </div>
                )}
+               {/* Level Notification*/}
+               <div className="mt-6 bg-gray-100 dark:bg-gray-900 rounded-xl p-4 m-5">
+                  <div className="flex justify-between items-center mb-4">
+                     <h3 className="text-lg font-semibold">SubStore Level Notification</h3>
+                     <Toggle enabled={notificationEnabled} />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                     {/* Level 1 */}
+                     <div className="rounded-xl p-4 bg-white dark:bg-gray-800 shadow-soft dark:shadow-none border border-red-300 dark:border-red-700 bg-gradient-to-b from-red-100 dark:from-red-900/40 to-white dark:to-gray-800">
+                        <p className="text-red-400 font-semibold mb-2">Level 1: Critical</p>
+                        <div className="text-sm text-gray-300 space-y-2">
+                           <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
+                              Quick Alert – 15 min
+                           </div>
+                           <div className="flex flex-col gap-2">
+                              {subStore.phoneNumbersLevel1.map((phone, index) => (
+                                 <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                                    <FiPhone className="text-red-400 text-sm" />
+                                    <span>{phone}</span>
+                                 </div>
+                              ))}
+                           </div>
+                           <div className="flex flex-col gap-2">
+                              {subStore.emailRecipientsLevel1.map((email, index) => (
+                                 <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                                    <FiMail className="text-red-400 text-sm" />
+                                    <span>{email}</span>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Level 2 */}
+                     <div className="rounded-xl p-4 bg-white dark:bg-gray-800 shadow-soft dark:shadow-none border border-yellow-300 dark:border-yellow-600 bg-gradient-to-b from-yellow-100 dark:from-yellow-900/40 to-white dark:to-gray-800">
+                        <p className="text-yellow-400 font-semibold mb-2">Level 2: Warning</p>
+                        <div className="text-sm text-gray-300 space-y-2">
+                           <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
+                              Take Action – 20 min
+                           </div>
+                           <div className="flex flex-col gap-2">
+                              {subStore.phoneNumbersLevel2.map((phone, index) => (
+                                 <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                                    <FiPhone className="text-red-400 text-sm" />
+                                    <span>{phone}</span>
+                                 </div>
+                              ))}
+                           </div>
+                           <div className="flex flex-col gap-2">
+                              {subStore.emailRecipientsLevel2.map((email, index) => (
+                                 <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                                    <FiMail className="text-red-400 text-sm" />
+                                    <span>{email}</span>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Level 3 */}
+                     <div className="rounded-xl p-4 bg-white dark:bg-gray-800 shadow-soft dark:shadow-none border border-blue-300 dark:border-blue-600 bg-gradient-to-b from-blue-100 dark:from-blue-900/40 to-white dark:to-gray-800">
+                        <p className="text-blue-400 font-semibold mb-2">Level 3: Info</p>
+                        <div className="text-sm text-gray-300 space-y-2">
+                           <div className="bg-gray-100 dark:bg-gray-900 rounded px-3 py-2 text-gray-700 dark:text-gray-300">
+                              Daily / Weekly Reports
+                           </div>
+                           <div className="flex flex-col gap-2">
+                              {subStore.phoneNumbersLevel3.map((phone, index) => (
+                                 <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                                    <FiPhone className="text-red-400 text-sm" />
+                                    <span>{phone}</span>
+                                 </div>
+                              ))}
+                           </div>
+                           <div className="flex flex-col gap-2">
+                              {subStore.emailRecipientsLevel3.map((email, index) => (
+                                 <div key={index} className="flex items-center gap-2 bg-gray-900 rounded px-3 py-2">
+                                    <FiMail className="text-red-400 text-sm" />
+                                    <span>{email}</span>
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </>
          )}
          <AddSubStoreModal
