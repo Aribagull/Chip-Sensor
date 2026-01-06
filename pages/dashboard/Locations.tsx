@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Store,
+  Layers,
+  Thermometer,
+  Activity } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import LocationCard from '../../components/dashboard/LocationCard';
 import Modal from '../../components/ui/Modal';
@@ -67,6 +70,24 @@ setStores([]);
 };
 
 
+
+const handleStoreUpdate = (updatedStore: any) => {
+  setStores((prevStores) =>
+    prevStores.map((store) =>
+      store._id === updatedStore._id ? updatedStore : store
+    )
+  );
+};
+
+const handleStoreDelete = (id: string) => {
+  setStores((prevStores) =>
+    prevStores.filter((store) => store._id !== id)
+  );
+};
+
+
+
+
   // 🔹 CREATE STORE HANDLER
  const handleCreateStore = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -105,38 +126,152 @@ setStores([]);
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Locations</h1>
-        <div className="flex items-center space-x-3 md:space-x-5">
-          
-          {/* Search Input + Button */}
-          <div className="hidden md:flex items-center space-x-2">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Enter Store ID..."
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                className="pl-10 pr-4 py-2 bg-gray-100 dark:bg-slate-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary w-64 text-gray-900 dark:text-gray-100 transition-all"
-              />
-            </div>
-            <Button onClick={handleSearch}>Search</Button>
-          </div>
+<div className="bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-6 shadow-sm">
+  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
 
-          {/* Add Location Button */}
-          <Button onClick={() => setIsAddModalOpen(true)}>
-            <Plus className="h-5 w-5 mr-2" />
-            Add Location
-          </Button>
+    {/* Left Content */}
+    <div>
+      <div className="flex items-center gap-3">
+        <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
+          <svg
+            className="w-6 h-6 text-blue-600 dark:text-blue-400"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 21h18M5 21V7l7-4 7 4v14" />
+          </svg>
         </div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Locations Management
+        </h1>
       </div>
 
+      <p className="mt-2 ml-14 text-base text-gray-600 dark:text-gray-400 max-w-xl">
+        Manage your stores, sub-stores, and monitor sensor performance across all locations
+      </p>
+    </div>
+
+    {/* Right Actions */}
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search by Store ID..."
+          value={searchId}
+          onChange={(e) => setSearchId(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          className="pl-9 pr-4 py-2.5 w-full sm:w-64 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-sm text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-primary"
+        />
+      </div>
+
+      {/* Add Substore / Location */}
+      <Button
+        onClick={() => setIsAddModalOpen(true)}
+        className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl"
+      >
+        <Plus className="h-5 w-5" />
+        Add Substore
+      </Button>
+    </div>
+  </div>
+  {/* Stats Cards */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+
+  {/* Total Stores */}
+  <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl">
+      <Store className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+    </div>
+    <div>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        {stores.length}
+      </p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Total Stores
+      </p>
+    </div>
+  </div>
+
+  {/* Substores */}
+  <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+    <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
+      <Layers className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+    </div>
+    <div>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        {stores.reduce((acc, s) => acc + (s.subStores?.length || 0), 0)}
+      </p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Sub-stores
+      </p>
+    </div>
+  </div>
+
+  {/* Total Sensors */}
+  <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+    <div className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
+      <Thermometer className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+    </div>
+    <div>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        {stores.reduce(
+          (acc, s) =>
+            acc +
+            (s.subStores?.reduce(
+              (a: number, sub: any) => a + (sub.sensors?.length || 0),
+              0
+            ) || 0),
+          0
+        )}
+      </p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Total Sensors
+      </p>
+    </div>
+  </div>
+
+  {/* Active Sensors (status === "on") */}
+  <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+    <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-xl">
+      <Activity className="w-6 h-6 text-green-600 dark:text-green-400" />
+    </div>
+
+    <div>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">
+        {stores.reduce(
+          (acc, store) =>
+            acc +
+            (store.subStores?.reduce(
+              (subAcc: number, sub: any) =>
+                subAcc +
+                (sub.sensors?.filter(
+                  (sensor: any) => sensor.status === "on"
+                ).length || 0),
+              0
+            ) || 0),
+          0
+        )}
+      </p>
+
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Active Sensors
+      </p>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+
+
       {/* Stores Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[200px] relative">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 min-h-[200px] relative">
   {loadingStores ? (
     <div className="absolute inset-0 flex justify-center items-center  z-10">
       <ClipLoader color="#0f41ccff" loading={loadingStores} size={50} />
@@ -145,7 +280,13 @@ setStores([]);
     <p className="text-center col-span-full text-gray-500">No stores found</p>
   ) : (
     stores.map((store) => (
-      <LocationCard key={store._id} location={store} linkState={{ storeName: store.storeName }}  />
+     <LocationCard
+  key={store._id}
+  location={store}
+  onUpdate={handleStoreUpdate}
+  onDelete={handleStoreDelete}
+/>
+
     ))
   )}
 </div>

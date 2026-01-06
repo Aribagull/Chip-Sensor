@@ -5,6 +5,7 @@ import TemperatureChart from "../components/dashboard/TemperatureChart";
 import { getSensorById, updateSensorById } from "../Api/Sensors/AddSensor";
 import { FiActivity, FiAlertCircle, FiThermometer } from "react-icons/fi";
 
+
 const SensorDetails: React.FC = () => {
   const { sensorId } = useParams<{ sensorId: string }>();
   const location = useLocation();
@@ -13,6 +14,12 @@ const SensorDetails: React.FC = () => {
   const [sensor, setSensor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
+ const [pageTitle, setPageTitle] = useState("");
+ const [sensorName, setSensorName] = useState("");
+const [deviceName, setDeviceName] = useState("");
+
+
+
 
   // Local state for editable fields
   const [minTempF, setMinTempF] = useState<number>(0);
@@ -27,16 +34,28 @@ useEffect(() => {
       .then((res) => {
         if (res.success && res.sensor) {
           setSensor(res.sensor);
+
+          setSensorName(res.sensor.sensorName || "");
+          setDeviceName(res.sensor.deviceName || "");
+
           setMinTempF(res.sensor.minTempF || 0);
           setMaxTempF(res.sensor.maxTempF || 0);
           setNotificationOn(res.sensor.notificationStatus === "on");
-          setDeviceIp(res.sensor.deviceIp || "");
         }
       })
-      .catch(console.error)
       .finally(() => setLoading(false));
   }
 }, [sensorId]);
+
+
+useEffect(() => {
+  if (sensor?.sensorName) {
+    setPageTitle(sensor.sensorName);
+    sessionStorage.setItem('pageTitle', sensor.sensorName);
+  }
+}, [sensor]);
+
+
 
 
   const avgTemp =
@@ -47,25 +66,26 @@ useEffect(() => {
   if (!sensorId || !sensor) return;
 
   try {
-    const res = await updateSensorById(sensorId, { 
-      sensorName: sensor.sensorName,
-      deviceName: sensor.deviceName,
+    const res = await updateSensorById(sensorId, {
+      sensorName,
+      deviceName,
       minTempF,
       maxTempF,
-      notificationOn
-    }, sensor); 
+      notificationStatus: notificationOn ? "on" : "off",
+    }, sensor); // pass current sensor object
 
     if (res.success) {
-      setSensor(res.sensor); 
+      setSensor(res.sensor);
       setEditModalOpen(false);
     } else {
-      alert(res.message);
+      alert(res.message || "Failed to update sensor");
     }
   } catch (err) {
     console.error(err);
     alert("Failed to update sensor");
   }
 };
+
 
 
 
@@ -140,7 +160,7 @@ useEffect(() => {
           <div>
             <p className="text-gray-500 dark:text-gray-400">Current Temperature</p>
             <p className="text-5xl font-bold mt-2">
-              {sensor.currentTempF?.toFixed(1) || avgTemp.toFixed(1)}°F
+              {sensor.currentTempC?.toFixed(1) || avgTemp.toFixed(1)}°C
             </p>
           </div>
 
@@ -276,6 +296,25 @@ useEffect(() => {
             />
 
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Edit Sensor</h3>
+<div className="flex flex-col">
+  <label className="text-sm">Sensor Name</label>
+  <input
+    type="text"
+    value={sensorName}
+    onChange={(e) => setSensorName(e.target.value)}
+    className="mt-1 p-2 rounded border dark:bg-slate-700"
+  />
+</div>
+<div className="flex flex-col">
+  <label className="text-sm">Device Name</label>
+  <input
+    type="text"
+    value={deviceName}
+    onChange={(e) => setDeviceName(e.target.value)}
+    className="mt-1 p-2 rounded border dark:bg-slate-700"
+  />
+</div>
+
 
             {/* Min Temp */}
             <div className="flex flex-col">

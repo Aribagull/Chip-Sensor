@@ -18,13 +18,27 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ role }) => {
   const { theme, toggleTheme } = useTheme();
 
  const getPageTitle = () => {
-  const state = location.state as { storeName?: string };
+  const state = location.state as {
+    pageTitle?: string;
+    storeName?: string;
+    sensorName?: string;
+  };
+
+ 
+  if (state?.pageTitle) return state.pageTitle;
+
+  if (state?.sensorName) return state.sensorName;
   if (state?.storeName) return state.storeName;
 
   const path = location.pathname.split('/').pop() || 'dashboard';
-  if (path === 'dashboard') return role === 'admin' ? 'Admin Overview' : 'Dashboard';
+
+  if (path === 'dashboard') {
+    return role === 'admin' ? 'Admin Overview' : 'Dashboard';
+  }
+
   return path.charAt(0).toUpperCase() + path.slice(1);
 };
+
 
 
 

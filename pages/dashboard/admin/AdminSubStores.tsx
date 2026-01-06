@@ -88,7 +88,6 @@ const AdminSubStores: React.FC = () => {
     const fetchStore = async () => {
       try {
         const response = await getAllStores();
-        console.log("Stores API response:", response);
         const storesArray = response.stores || response || [];
         const selectedStore = storesArray.find((s: Store) => s._id === storeId);
         setStore(selectedStore || null);

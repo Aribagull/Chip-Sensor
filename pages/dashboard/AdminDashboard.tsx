@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { adminAnalytics } from "../../Api/admin/dashboard";
-import { 
-  Users, MapPin, Thermometer, Bell, ClipboardList, AlertTriangle, 
+import {
+  Users, MapPin, Thermometer, Bell, ClipboardList, AlertTriangle,
   ArrowRight, TrendingUp, TrendingDown, Activity, CheckCircle2,
   Clock, ChevronRight, Zap, Shield
 } from 'lucide-react';
@@ -57,49 +57,43 @@ const AdminDashboard: React.FC = () => {
 
 
   useEffect(() => {
-  const fetchDashboard = async () => {
-    try {
-      setLoading(true);
-      const data = await adminAnalytics();
+    const fetchDashboard = async () => {
+      try {
+        setLoading(true);
+        const data = await adminAnalytics();
 
-      setCustomers(data.customers);
-      setOverall(data.overall);
-    } catch (err: any) {
-      setError(err.message || 'Dashboard load failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+        setCustomers(data.customers);
+        setOverall(data.overall);
+      } catch (err: any) {
+        setError(err.message || 'Dashboard load failed');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchDashboard();
-}, []);
-
-
-if (loading) {
-  return <div className="p-6 text-center">Loading dashboard...</div>;
-}
-
-if (error) {
-  return <div className="p-6 text-center text-red-500">{error}</div>;
-}
+    fetchDashboard();
+  }, []);
 
 
-const totalCustomers = overall?.totalCustomers ?? 0;
-const totalLocations = overall?.totalStores ?? 0;
-const totalSubStores = overall?.totalSubStores ?? 0;
-const totalSensors = overall?.totalSensors ?? 0;
 
-const sensorsOnline = overall?.activeSensors ?? 0;
-const pendingRequests = overall?.pendingRequests ?? 0;
 
-// last 30 days (example)
-const last30DaysCustomers = Array.from({ length: 30 }, (_, i) => ({
-  date: `2026-01-${i + 1 < 10 ? '0' + (i + 1) : i + 1}`,
-  count: Math.floor(Math.random() * 15) + 1,
-}));
 
-// chart data now only last 30 days
-const chartData = last30DaysCustomers;
+  const totalCustomers = overall?.totalCustomers ?? 0;
+  const totalLocations = overall?.totalStores ?? 0;
+  const totalSubStores = overall?.totalSubStores ?? 0;
+  const totalSensors = overall?.totalSensors ?? 0;
+
+  const sensorsOnline = overall?.activeSensors ?? 0;
+  const pendingRequests = overall?.pendingRequests ?? 0;
+
+  // last 30 days (example)
+  const last30DaysCustomers = Array.from({ length: 30 }, (_, i) => ({
+    date: `2026-01-${i + 1 < 10 ? '0' + (i + 1) : i + 1}`,
+    count: Math.floor(Math.random() * 15) + 1,
+  }));
+
+  // chart data now only last 30 days
+  const chartData = last30DaysCustomers;
 
 
 
@@ -114,7 +108,7 @@ const chartData = last30DaysCustomers;
 
   return (
     <div className="space-y-8 pb-8">
-      
+
       {/* Hero Welcome Section */}
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 lg:p-10">
         {/* Background Pattern */}
@@ -122,7 +116,7 @@ const chartData = last30DaysCustomers;
           <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
         </div>
-        
+
         <div className="relative z-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             {/* Welcome Text */}
@@ -135,7 +129,7 @@ const chartData = last30DaysCustomers;
                 Monitor all customer systems, manage requests, and resolve alerts from one place.
               </p>
             </div>
-            
+
             {/* Quick Stats Pills */}
             <div className="flex flex-wrap gap-3">
               <div className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl px-5 py-3 flex items-center space-x-3">
@@ -144,13 +138,13 @@ const chartData = last30DaysCustomers;
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-white">
-  {sensorsOnline}/{totalSensors}
-</p>
+                    {sensorsOnline}/{totalSensors}
+                  </p>
 
                   <p className="text-xs text-slate-400">Sensors Online</p>
                 </div>
               </div>
-              
+
               {/* {criticalAlerts > 0 && (
                 <div className="bg-red-500/20 backdrop-blur-sm border border-red-500/30 rounded-2xl px-5 py-3 flex items-center space-x-3 animate-pulse">
                   <div className="w-10 h-10 bg-red-500/30 rounded-xl flex items-center justify-center">
@@ -169,84 +163,104 @@ const chartData = last30DaysCustomers;
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-       <StatCard 
-  label="Customers"
-  value={totalCustomers}
-  icon={Users}
-  trend="Total customers"
-  trendUp={true}
-  color="blue"
-/>
+        <StatCard
+          label="Customers"
+          value={totalCustomers}
+          icon={Users}
+          trend="Total customers"
+          trendUp={true}
+          color="blue"
+        />
 
-<StatCard 
-  label="Locations"
-  value={totalLocations}
-  icon={MapPin}
-  trend="Total stores"
-  trendUp={true}
-  color="indigo"
-/>
+        <StatCard
+          label="Locations"
+          value={totalLocations}
+          icon={MapPin}
+          trend="Total stores"
+          trendUp={true}
+          color="indigo"
+        />
 
-<StatCard 
-  label="Sub-Stores"
-  value={totalSubStores}
-  icon={Thermometer}
-  trend="All substores"
-  trendUp={true}
-  color="purple"
-/>
+        <StatCard
+          label="Sub-Stores"
+          value={totalSubStores}
+          icon={Thermometer}
+          trend="All substores"
+          trendUp={true}
+          color="purple"
+        />
 
-<StatCard 
-  label="Pending Requests"
-  value={pendingRequests}
-  icon={ClipboardList}
-  trend="Needs attention"
-  trendUp={false}
-  color="orange"
-  highlight={pendingRequests > 0}
-/>
+        <StatCard
+          label="Pending Requests"
+          value={pendingRequests}
+          icon={ClipboardList}
+          trend="Needs attention"
+          trendUp={false}
+          color="orange"
+          highlight={pendingRequests > 0}
+        />
 
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-        
+
         {/* Active Alerts - Takes 2 columns */}
         <div className="xl:col-span-2 space-y-4">
-       <div className="mt-8 space-y-6 xl:col-span-2">
-  <CustomerChart data={chartData} title="Customers Last 30 Days" />
+          <div className="mt-8 space-y-6 xl:col-span-2">
+            <CustomerChart data={chartData} title="Customers Last 30 Days" />
+          </div>
+
+
+          
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-md ">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Active Alerts</h3>
+            <div className="flex gap-6">
+            {/* Right side: Alerts List */}
+           <div className="w-2/3 space-y-3 max-h-64 overflow-y-auto">
+  {alerts.map((alert, idx) => {
+    const alertBgColors = [
+      "bg-red-50 dark:bg-red-900/20",
+      "bg-yellow-50 dark:bg-yellow-900/20",
+      "bg-blue-50 dark:bg-blue-900/20",
+    ];
+
+    return (
+      <div
+        key={idx}
+        className={`p-3 rounded-xl flex justify-between items-start 
+        hover:shadow-md transition 
+        ${alertBgColors[idx % alertBgColors.length]}`}
+      >
+        <div>
+          <p className="font-semibold text-gray-900 dark:text-white">
+            {alert.customerName} → {alert.subStoreName}
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            {alert.issue}
+          </p>
+        </div>
+
+        <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400">
+          <Clock className="w-3 h-3 mb-1" />
+          {alert.timeAgo}
+        </div>
+      </div>
+    );
+  })}
 </div>
 
- <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-md flex gap-6">
-      {/* Left side: Doughnut Chart */}
-      <div className="w-1/3 flex flex-col items-center justify-center">
-        <DoughnutChart alerts={alerts} />
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          Alerts Summary
-        </p>
-      </div>
 
-      {/* Right side: Alerts List */}
-      <div className="w-2/3 space-y-3 max-h-64 overflow-y-auto">
-        {alerts.map((alert, idx) => (
-          <div
-            key={idx}
-            className="p-3 bg-gray-100 dark:bg-slate-700 rounded-xl flex justify-between items-start hover:shadow-md transition"
-          >
-            <div>
-              <p className="font-semibold text-gray-900 dark:text-white">
-                {alert.customerName} → {alert.subStoreName}
+            {/* Left side: Doughnut Chart */}
+            <div className="w-1/3 flex flex-col items-center justify-center">
+              <DoughnutChart alerts={alerts} />
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Alerts Summary
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">{alert.issue}</p>
             </div>
-            <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400">
-              <Clock className="w-3 h-3 mb-1" />
-              {alert.timeAgo}
-            </div>
+
+</div>
           </div>
-        ))}
-      </div>
-    </div>
 
 
 
@@ -388,7 +402,7 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert, index }) => {
   const config = levelConfig[alert.level as keyof typeof levelConfig] || levelConfig[3];
 
   return (
-    <div 
+    <div
       className={`${config.bg} ${config.border} border rounded-xl p-4 hover:shadow-md transition-all duration-300 animate-fadeIn`}
       style={{ animationDelay: `${index * 100}ms` }}
     >

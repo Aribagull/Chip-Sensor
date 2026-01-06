@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Mail, Phone, Layers, Building, Briefcase, User } from 'lucide-react';
+import { Plus, Search, Mail, Phone, Layers, Building, Briefcase, User, Trash2 } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Badge from '../../../components/ui/Badge';
@@ -58,160 +58,22 @@ const Customers: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = async () => {
-    if (!customerToDelete) return;
+ const confirmDelete = async () => {
+  if (!customerToDelete) return;
 
-    try {
-      setLoading(true);
-      await deleteUserById(customerToDelete._id);
-      setCustomers(prev => prev.filter(c => c._id !== customerToDelete._id));
-      setCustomerToDelete(null);
-      setIsDeleteModalOpen(false);
-    } catch (err) {
-      console.error("Error deleting user:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
-  if (selectedCustomer) {
-    return (
-      <div className="space-y-6">
-        {/* Back Button */}
-        <Button
-          variant="secondary"
-          onClick={() => setSelectedCustomer(null)}
-          className="mb-4"
-        >
-          ← Back to Customers
-        </Button>
-
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Customer Details
-            </h2>
-            {/* Paragraph under heading */}
-            <p className="text-gray-600 dark:text-gray-300 ">
-              Here you can view all the details of the selected customer.
-            </p>
-          </div>
-
-          <Button
-            variant="danger"
-            onClick={() => handleDeleteClick(selectedCustomer)}
-          >
-            Delete Customer
-          </Button>
-
-        </div>
-
-
-
-        {/* Customer Details Card */}
-        <Card className="p-6 space-y-6 shadow-lg border dark:border-slate-700">
-          {/* Basic Info with Icons only in headings */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <User className="w-4 h-4 text-blue-500" /> Name
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                {selectedCustomer.name}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <Mail className="w-4 h-4 text-blue-500" /> Email
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                {selectedCustomer.email}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <Phone className="w-4 h-4 text-blue-500" /> Phone
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                {selectedCustomer.phone}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <Briefcase className="w-4 h-4 text-blue-500" /> Organization
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                {selectedCustomer.organizationName}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <User className="w-4 h-4 text-blue-500" /> Role
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                {selectedCustomer.role}
-              </p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <Briefcase className="w-4 h-4 text-blue-500" /> Services
-              </p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                {selectedCustomer.services}
-              </p>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-6 pt-6">
-            <div className="bg-gray-100 dark:bg-slate-700 rounded-xl p-4 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Locations</p>
-              <p className="text-2xl font-bold">{selectedCustomer.locationCount || 0}</p>
-            </div>
-
-            <div className="bg-gray-100 dark:bg-slate-700 rounded-xl p-4 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Sensors</p>
-              <p className="text-2xl font-bold">{selectedCustomer.sensorCount || 0}</p>
-            </div>
-
-            <div className="bg-gray-100 dark:bg-slate-700 rounded-xl p-4 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Alerts</p>
-              <p className="text-2xl font-bold">{selectedCustomer.activeAlerts || 0}</p>
-            </div>
-          </div>
-        </Card>
-
-         {customerToDelete && isDeleteModalOpen && (
-  <Modal
-    isOpen={isDeleteModalOpen}
-    onClose={() => setIsDeleteModalOpen(false)}
-    title="Delete Customer"
-    size="sm"
-  >
-    <p className="text-gray-700 dark:text-gray-300 mb-4 text-center">
-      Are you sure you want to delete {customerToDelete.name}?
-    </p>
-    <div className="flex justify-center space-x-4">
-      <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
-        Cancel
-      </Button>
-      <Button variant="danger" onClick={confirmDelete}>
-        Delete
-      </Button>
-    </div>
-  </Modal>
-)}
-      </div>
-    );
+  try {
+    setLoading(true);
+    await deleteUserById(customerToDelete._id); 
+    setCustomers(prev => prev.filter(c => c._id !== customerToDelete._id)); 
+    setCustomerToDelete(null);
+    setIsDeleteModalOpen(false); 
+  } catch (err) {
+    console.error("Error deleting user:", err);
+  } finally {
+    setLoading(false);
   }
+};
+
 
 
   return (
@@ -223,14 +85,7 @@ const Customers: React.FC = () => {
         </Button>
       </div>
 
-      {loading ? (
-        <div className="min-h-[60vh] flex justify-center items-center">
-          <ClipLoader
-            color="#0f41ccff"
-            size={50}
-          />
-        </div>
-      ) : (
+    
         <Card className="p-0 overflow-hidden border-none shadow-soft dark:shadow-none" noPadding>
           {/* Search */}
           <div className="p-4 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
@@ -263,68 +118,106 @@ const Customers: React.FC = () => {
                 </tr>
               </thead>
 
-              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-slate-700">
-                {filteredCustomers.map((customer) => (
-                  <tr key={customer._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td className="px-6 py-4 flex items-center space-x-3">
-                      <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500/20 dark:text-blue-100  font-bold text-base">
-                        {customer.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="text-sm font-bold">{customer.name}</div>
+                 <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-slate-700">
+      {loading ? (
+        <tr>
+          <td colSpan={7} className="py-10 text-center">
+            <ClipLoader color="#0f41ccff" size={35} />
+          </td>
+        </tr>
+      ) : filteredCustomers.length > 0 ? (
+        filteredCustomers.map((customer) => (
+          <tr key={customer._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+            <td className="px-6 py-4 flex items-center space-x-3">
+              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500/20 dark:text-blue-100 font-bold text-base">
+                {customer.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="text-sm font-bold">{customer.name}</div>
+            </td>
 
-                    </td>
+            <td className="px-6 py-4 space-y-1">
+              <div className="flex items-center space-x-2 text-sm">
+                <Mail className="w-4 h-4 dark:text-blue-100" />
+                <span className='dark:text-blue-100'>{customer.email}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-green-500">
+                <Phone className="w-4 h-4 text-green-400" />
+                <span>{customer.phone}</span>
+              </div>
+            </td>
 
-                    {/* Contact Info with Icons */}
-                    <td className="px-6 py-4 space-y-1">
-                      <div className="flex items-center space-x-2 text-sm">
-                        <Mail className="w-4 h-4 dark:text-blue-100" />
-                        <span className='dark:text-blue-100 '>{customer.email}</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-sm text-green-500">
-                        <Phone className="w-4 h-4 text-green-400" />
-                        <span>{customer.phone}</span>
-                      </div>
-                    </td>
+            <td className="px-6 py-4 text-center">
+              <span className="font-semibold bg-gray-100 dark:bg-slate-700 p-3 rounded-full">{customer.role}</span>
+            </td>
 
-                    {/* Role with background */}
-                    <td className="px-6 py-4 text-center">
-                      <span className="font-semibold bg-gray-100 dark:bg-slate-700 p-3 rounded-full">{customer.role}</span>
-                    </td>
+            <td className="px-6 py-4 text-center font-mono">{customer.services || 'other'}</td>
+            <td className="px-6 py-4 text-center flex items-center justify-center space-x-1">
+              <Building className="w-4 h-4 text-blue-400" />
+              <span className="font-mono">{customer.organizationName}</span>
+            </td>
+            <td className="px-6 py-4 text-center font-mono">{customer.message}</td>
 
-                    <td className="px-6 py-4 text-center font-mono">{customer.services || 'other'}</td>
-                    <td className="px-6 py-4 text-center flex items-center justify-center space-x-1">
-                      <Building className="w-4 h-4 text-blue-400" />
-                      <span className="font-mono">{customer.organizationName}</span>
-                    </td>
-                    <td className="px-6 py-4 text-center font-mono">{customer.message}</td>
+            <td className="px-6 py-4 text-right space-x-2">
+              <button
+                onClick={() => handleDeleteClick(customer)}
+                className="text-red-500 hover:text-red-700 p-2 rounded-full transition-colors"
+                title="Delete Customer"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td colSpan={7} className="py-6 text-center text-gray-500 dark:text-gray-400">
+            No customers found.
+          </td>
+        </tr>
+      )}
+    </tbody>
 
-
-
-                    <td className="px-6 py-4 text-right space-x-2">
-
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="dark:text-white dark:border-slate-600 dark:hover:bg-slate-700"
-                        onClick={() => setSelectedCustomer(customer)}
-                      >
-                        View
-                      </Button>
-
-                      <button
-                        onClick={() => handleEditClick(customer._id)}
-                        className="text-gray-400 hover:text-blue-600"
-                      >
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
 
             </table>
+            {/* Delete Customer Modal */}
+{customerToDelete && (
+  <Modal
+    isOpen={isDeleteModalOpen}
+    onClose={() => setIsDeleteModalOpen(false)}
+    title="Delete Customer"
+    size="sm"
+  >
+    <p className="text-gray-700 dark:text-gray-300 mb-4 text-center">
+      Are you sure you want to delete {customerToDelete.name}?
+    </p>
+    <div className="flex justify-center space-x-4">
+      <Button variant="secondary" onClick={() => setIsDeleteModalOpen(false)}>
+        Cancel
+      </Button>
+      <Button
+        variant="danger"
+        onClick={async () => {
+          try {
+            setLoading(true);
+            await deleteUserById(customerToDelete._id);
+            setCustomers(prev => prev.filter(c => c._id !== customerToDelete._id));
+            setCustomerToDelete(null);
+            setIsDeleteModalOpen(false);
+          } catch (err) {
+            console.error("Error deleting user:", err);
+          } finally {
+            setLoading(false);
+          }
+        }}
+      >
+        Delete
+      </Button>
+    </div>
+  </Modal>
+)}
+
           </div>
         </Card>
-      )}
 
       {/* Add Customer Modal */}
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add New Customer">

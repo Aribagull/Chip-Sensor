@@ -26,10 +26,14 @@ const AdminSensorList: React.FC<SensorListProps> = ({ sensors }) => {
       <div className="space-y-3">
         {sensors.map((sensor) => (
           <div
-            key={sensor._id}
-            onClick={() => setSelectedSensor(sensor)}
-            className="bg-white dark:bg-slate-800 p-3 rounded-xl border flex items-center justify-between cursor-pointer hover:shadow"
-          >
+  key={sensor._id}
+  onClick={(e) => {
+    e.stopPropagation();  
+    setSelectedSensor(sensor);
+  }}
+  className="bg-white dark:bg-slate-800 p-3 rounded-xl border flex items-center justify-between cursor-pointer hover:shadow"
+>
+
             <div className="flex items-center">
               <div
                 className={`p-2 rounded-lg mr-3 ${
@@ -76,7 +80,14 @@ const AdminSensorList: React.FC<SensorListProps> = ({ sensors }) => {
             <button
   onClick={(e) => {
     e.stopPropagation();
-    navigate(`/admin/sensors/sensor/${selectedSensor._id}`);
+    navigate(
+      `/admin/sensors/sensor/${selectedSensor._id}`,
+      {
+        state: {
+          pageTitle: selectedSensor.sensorName,
+        },
+      }
+    );
   }}
   className="flex items-center gap-1 text-sm border px-2 py-1 rounded"
 >
@@ -86,9 +97,17 @@ const AdminSensorList: React.FC<SensorListProps> = ({ sensors }) => {
 
           </div>
 
-          <h4 className="font-bold mb-2">
-            {selectedSensor.sensorName}
+<div className="flex justify-between">
+<h4 className="font-bold mb-2">
+            {selectedSensor.sensorName} - 24h Temperature Data
           </h4>
+          <div className="flex gap-2">
+      <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
+        Last 24h
+      </span>
+    </div>
+</div>
+          
 
           <div className="h-56">
   {selectedSensor.temperatureRecords &&

@@ -12,11 +12,12 @@ import { FiPhone, FiMail } from "react-icons/fi";
 
 
 interface SubStoreAccordionProps {
-   subStore: SubStore;
-   onRequestSensor: (subStoreName: string) => void;
-   isAdmin?: boolean;
-    navigateToSubStore?: boolean;
+  subStore: SubStore;
+  onRequestSensor: (subStoreName: string) => void;
+  onClick?: () => void;
+  isSelected?: boolean;
 }
+
 
 const SubStoreAccordion: React.FC<SubStoreAccordionProps> = ({ subStore, onRequestSensor, isAdmin = false }) => {
    const navigate = useNavigate();
@@ -321,10 +322,16 @@ const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null
  <button
   className="flex items-center gap-1 text-blue-600 dark:text-white text-sm font-medium dark:hover:text-blue-600 border border-gray-300 px-2 py-1 rounded hover:border-blue-600"
   onClick={() => {
-    if (!selectedSensor || !selectedSensor._id) {
-      return;
-    }
-    navigate(`/dashboard/sensors/sensor/${selectedSensor._id}`);
+    if (!selectedSensor || !selectedSensor._id) return;
+
+    navigate(
+      `/dashboard/sensors/sensor/${selectedSensor._id}`,
+      {
+        state: {
+          pageTitle: selectedSensor.sensorName,
+        },
+      }
+    );
   }}
 >
   <Eye className="h-4 w-4" />
@@ -337,15 +344,14 @@ const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null
 
   )}
   <div className="flex items-center justify-between mb-4">
-   <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-  {subStore.sensors.find(sensor => sensor.temperatureRecords.length > 0)?.sensorName || "Sensor"} - 24h Temperature Data
-</h4>
-
-    <div className="flex gap-2">
+<h4 className="font-bold mb-2">
+            {selectedSensor.sensorName} - 24h Temperature Data
+          </h4>
+          <div className="flex gap-2">
       <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
         Last 24h
       </span>
-    </div>
+</div>
   </div>
 
   <div className="h-56">

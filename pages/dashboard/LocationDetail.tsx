@@ -267,7 +267,7 @@ useEffect(() => {
   onEdit={() => handleEditSubStore(subStore)}
   isAdmin={isAdmin}
   navigateToSubStore={true}
-  onClick={() => navigate(`${storeId}/substore/${subStore._id}`)}
+  onClick={() => navigate(`/dashboard/locations/${storeId}/substores/${subStore._id}`)}
   isSelected={selectedSubStore?._id === subStore._id}
 />
 
