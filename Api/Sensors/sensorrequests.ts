@@ -30,7 +30,7 @@ export interface RequestData {
   locationName: string;
   subStoreName: string;
   items: string[];
-  status: "pending" | "approved" | "installed" | "rejected";
+  status: "pending" | "approved" | "installed" | "rejected" | "payment_pending" | "active" | "completed" | "cancelled";
   date: string;
   urgency?: "urgent";
   adminNote?: string;

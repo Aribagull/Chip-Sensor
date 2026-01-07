@@ -232,30 +232,46 @@ useEffect(() => {
       </div>
 
       {/* Location Info */}
-      <div className=" px-6  flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
-        <div className=''>
-         
-          <h1 className="flex text-3xl items-center text-gray-500 dark:text-gray-400 mt-1">
-            
-            {location.storeName}
-          </h1>
-          <div className='flex items-center gap-1.5 mt-2'><MapPin className="h-4 w-4 mr-1" />{location.address}</div>
-           
+      {/* Location Info Header */}
+<div className="bg-white dark:bg-slate-900 shadow-md rounded-2xl px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
+  
+  {/* Left: Store Name & Address */}
+  <div className="flex flex-col">
+    <h1 className="text-3xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+      {location.storeName}
+      <span className="text-sm px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full font-medium">
+        {location.subStores.length} Sub-stores
+      </span>
+    </h1>
 
-        </div>
-        {/* Add Sub-Store Button */}
-      <div className="flex justify-center pt-4">
-        <Button variant="secondary" className="border-dashed" onClick={() => setIsAddSubStoreOpen(true)}>
-          <Plus className="h-5 w-5 mr-2" />
-          Add Sub-Store
-        </Button>
+    <div className="flex items-center gap-2 mt-2 text-gray-600 dark:text-gray-300 text-sm">
+      <MapPin className="h-4 w-4" />
+      <span>{location.address}</span>
+    </div>
+  </div>
+
+  {/* Right: Actions */}
+  <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-2">
+    
+    {/* Add Sub-Store Button */}
+    <Button
+      variant="secondary"
+      className="border-dashed flex items-center gap-2"
+      onClick={() => setIsAddSubStoreOpen(true)}
+    >
+      <Plus className="h-5 w-5" />
+      Add Sub-Store
+    </Button>
+
+    {/* Admin Mode Badge */}
+    {isAdmin && (
+      <div className="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-md text-sm text-gray-600 dark:text-gray-300 font-medium">
+        Admin Mode: Full Access
       </div>
-        {isAdmin && (
-          <div className="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-md text-sm text-gray-600 dark:text-gray-300 font-medium">
-            Admin Mode: Full Access
-          </div>
-        )}
-      </div>
+    )}
+  </div>
+</div>
+
 
       {/* Sub-Stores List */}
      <div className="grid grid-cols-1 gap-4">
@@ -414,7 +430,7 @@ const updated = await getStoreById(storeId!);
     </div>
 
     {/* IoT Gateway Card */}
-    <div
+    {/* <div
       className={`border rounded-lg p-4 cursor-pointer transition-all ${
         selectedTypes.gateway > 0
           ? 'ring-2 ring-primary border-primary bg-blue-50 dark:bg-blue-900/20 dark:border-primary'
@@ -447,10 +463,10 @@ const updated = await getStoreById(storeId!);
           </button>
         </div>
       )}
-    </div>
+    </div> */}
 
     {/* Other Sensor Card */}
-    <div
+    {/* <div
       className={`border rounded-lg p-4 cursor-pointer transition-all ${
         selectedTypes.other
           ? 'ring-2 ring-primary border-primary bg-blue-50 dark:bg-blue-900/20 dark:border-primary'
@@ -477,7 +493,7 @@ const updated = await getStoreById(storeId!);
           onClick={(e) => e.stopPropagation()}
         />
       )}
-    </div>
+    </div> */}
 
   </div>
 </div>

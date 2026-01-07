@@ -7,6 +7,7 @@ import Modal from '../../../components/ui/Modal';
 import Input from '../../../components/ui/Input';
 import { getAllUsers, getUserById, deleteUserById } from '../../../Api/admin/customers';
 import ClipLoader from "react-spinners/ClipLoader";
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 
 const Customers: React.FC = () => {
@@ -16,25 +17,37 @@ const Customers: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<any | null>(null);
+const [currentPage, setCurrentPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+const itemsPerPage = 10;
 
 
   const [selectedCustomer, setSelectedCustomer] = useState<any | null>(null);
 
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      setLoading(true);
-      try {
-        const data = await getAllUsers();
-        setCustomers(data.users.filter((u: any) => u.role === 'customer'));
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      const data = await getAllUsers(currentPage, itemsPerPage);
 
-    fetchCustomers();
-  }, []);
+      setCustomers(data.users.filter((u: any) => u.role === 'customer'));
+      setTotalPages(data.pagination.totalPages);
+
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCustomers();
+}, [currentPage]);
+
+useEffect(() => {
+  setCurrentPage(1);
+}, [searchTerm]);
+
+
 
   const filteredCustomers = customers.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,8 +138,8 @@ const Customers: React.FC = () => {
             <ClipLoader color="#0f41ccff" size={35} />
           </td>
         </tr>
-      ) : filteredCustomers.length > 0 ? (
-        filteredCustomers.map((customer) => (
+      ) : customers.length > 0 ? (
+        customers.map(customer => (
           <tr key={customer._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
             <td className="px-6 py-4 flex items-center space-x-3">
               <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-500/20 dark:text-blue-100 font-bold text-base">
@@ -215,6 +228,38 @@ const Customers: React.FC = () => {
     </div>
   </Modal>
 )}
+{/* Pagination */}
+<div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-b-xl">
+  
+  {/* Page Info */}
+  <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+    Page <span className="font-semibold">{currentPage}</span> of{" "}
+    <span className="font-semibold">{totalPages}</span>
+  </p>
+
+  {/* Controls */}
+  <div className="flex items-center gap-2">
+    <Button
+      variant="secondary"
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage(prev => prev - 1)}
+      className="flex items-center gap-1 px-3"
+    >
+      <ChevronLeft size={16} />
+      <span className="hidden sm:inline">Previous</span>
+    </Button>
+
+    <Button
+      variant="secondary"
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage(prev => prev + 1)}
+      className="flex items-center gap-1 px-3"
+    >
+      <span className="hidden sm:inline">Next</span>
+      <ChevronRight size={16} />
+    </Button>
+  </div>
+</div>
 
           </div>
         </Card>

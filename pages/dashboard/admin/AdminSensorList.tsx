@@ -20,6 +20,20 @@ const AdminSensorList: React.FC<SensorListProps> = ({ sensors }) => {
     );
   }
 
+  const validRecords = selectedSensor.temperatureRecords.filter(
+  (r) => r.temperatureC !== null && r.temperatureC !== undefined
+);
+const chartData = validRecords.map(r =>
+  Number(r.temperatureC.toFixed(2))
+);
+
+const minTemp =
+  Math.floor(Math.min(...chartData)) - 1;
+
+const maxTemp =
+  Math.ceil(Math.max(...chartData)) + 1;
+
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT: Sensor List */}
@@ -109,26 +123,23 @@ const AdminSensorList: React.FC<SensorListProps> = ({ sensors }) => {
 </div>
           
 
-          <div className="h-56">
-  {selectedSensor.temperatureRecords &&
-   selectedSensor.temperatureRecords.length > 0 ? (
-
+         <div className="h-56">
+  {validRecords.length > 0 ? (
     <TemperatureChart
-      data={selectedSensor.temperatureRecords.map(
-        (r: any) => r.temperatureC
-      )}
-      labels={selectedSensor.temperatureRecords.map((r: any) =>
-        new Date(r.recordedAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      )}
-      minTemp={selectedSensor.minTempF}
-      maxTemp={selectedSensor.maxTempF}
-    />
+  data={chartData}
+  labels={validRecords.map(r =>
+    new Date(r.recordedAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  )}
+  minTemp={minTemp}
+  maxTemp={maxTemp}
+/>
+
   ) : (
     <p className="text-sm text-gray-400 text-center">
-      No temperature data available
+      No valid temperature data available
     </p>
   )}
 </div>

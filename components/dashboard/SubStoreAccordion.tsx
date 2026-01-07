@@ -306,7 +306,10 @@ const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null
       </div>
 
       <span className="font-mono font-bold text-gray-800 dark:text-gray-200">
-        {sensor.currentTempC.toFixed(1)}°C
+       {sensor.currentTempC !== null && sensor.currentTempC !== undefined
+  ? sensor.currentTempC.toFixed(1)
+  : '--'}°C
+
       </span>
     </div>
   ))}
@@ -356,21 +359,35 @@ const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null
 
   <div className="h-56">
     {selectedSensor && selectedSensor.temperatureRecords && selectedSensor.temperatureRecords.length > 0 ? (
+  (() => {
+    // Filter out null temperature values
+    const filteredRecords = selectedSensor.temperatureRecords.filter(r => r.temperatureC !== null && r.temperatureC !== undefined);
+    const data = filteredRecords.map(r => r.temperatureC!); // Non-null assertion
+    const labels = filteredRecords.map(r =>
+      new Date(r.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    );
+   const minTemp =
+  Number((Math.floor(Math.min(...data)) - 1).toFixed(1));
+
+const maxTemp =
+  Number((Math.ceil(Math.max(...data)) + 1).toFixed(1));
+
+
+    return (
       <TemperatureChart
-  data={selectedSensor?.temperatureRecords.map(r => r.temperatureC) || []}
-  labels={selectedSensor?.temperatureRecords.map(r =>
-    new Date(r.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  ) || []}
-  minTemp={selectedSensor?.minTempF}
-  maxTemp={selectedSensor?.maxTempF}
-/>
+        data={data}
+        labels={labels}
+        minTemp={minTemp}
+        maxTemp={maxTemp}
+      />
+    );
+  })()
+) : (
+  <p className="text-sm text-gray-400 text-center">
+    No temperature data available
+  </p>
+)}
 
-
-    ) : (
-      <p className="text-sm text-gray-400 text-center">
-        No temperature data available
-      </p>
-    )}
   </div>
   
 </div>

@@ -1,19 +1,29 @@
 import api from "../axiosInstance"; 
 
-// Get all users
-export const getAllUsers = async (page = 1, limit = 10) => {
-  const token = localStorage.getItem('token');
-  if (!token) throw new Error("No token found");
+// Get all users 
+export const getAllUsers = async (
+  page: number = 1,
+  limit: number = 10
+) => {
+  const token = localStorage.getItem("token");
 
-  const response = await api.get('/auth/', {
+  if (!token) {
+    throw new Error("Authentication token not found");
+  }
+
+  const response = await api.get("/auth/", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    params: { page, limit },
+    params: {
+      page,
+      limit,
+    },
   });
 
   return response.data;
 };
+
 
 
 // Get user by ID

@@ -5,6 +5,8 @@ import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import { getAllStores } from '../../../Api/Stores/store';
 import ClipLoader from "react-spinners/ClipLoader";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { toast } from 'react-toastify';
 
 
 // Type definitions
@@ -31,21 +33,31 @@ const AdminLocations: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState('all');
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+const [itemsPerPage] = useState(10);
+const [totalPages, setTotalPages] = useState(1);
+
 
   useEffect(() => {
-    const fetchStores = async () => {
-      try {
-        setLoading(true);
-        const storesData = await getAllStores();
-        setStores(storesData || []);
-      } catch (error) {
-        console.error('Error fetching all stores:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStores();
-  }, []);
+  const fetchStores = async () => {
+    try {
+      setLoading(true);
+
+      const data = await getAllStores(currentPage, itemsPerPage);
+
+      setStores(data.stores || []);
+      setTotalPages(data.pagination.totalPages);
+
+    } catch (error) {
+      console.error('Error fetching all stores:', error);
+      toast.error("Failed to load stores. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStores();
+}, [currentPage]);
 
 
   const filteredStores = selectedCustomer === 'all'
@@ -164,7 +176,36 @@ const AdminLocations: React.FC = () => {
               )}
             </tbody>
           </table>
+          <div className="flex items-center justify-between px-6 py-4 border-t dark:border-slate-700">
+  <p className="text-sm text-gray-500 dark:text-gray-400">
+    Page <span className="font-semibold">{currentPage}</span> of{" "}
+    <span className="font-semibold">{totalPages}</span>
+  </p>
+
+  <div className="flex gap-2">
+    <Button
+      variant="secondary"
+      disabled={currentPage === 1}
+      onClick={() => setCurrentPage(prev => prev - 1)}
+      className="flex items-center gap-1"
+    >
+      <ChevronLeft size={16} />
+      Previous
+    </Button>
+
+    <Button
+      variant="secondary"
+      disabled={currentPage === totalPages}
+      onClick={() => setCurrentPage(prev => prev + 1)}
+      className="flex items-center gap-1"
+    >
+      Next
+      <ChevronRight size={16} />
+    </Button>
+  </div>
+</div>
         </div>
+
       </Card>
     </div>
   );

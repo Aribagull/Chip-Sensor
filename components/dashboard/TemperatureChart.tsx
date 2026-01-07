@@ -37,9 +37,9 @@ const TemperatureChart: React.FC<Props> = ({ data, labels, minTemp, maxTemp }) =
       {
         label: 'Temperature (°C)',
         data,
-        borderColor: '#3b82f6', // Blue line (CustomerChart style)
-        backgroundColor: 'rgba(59,130,246,0.2)', // Gradient fill
-        tension: 0.4, // Smooth line
+        borderColor: '#3b82f6', 
+        backgroundColor: 'rgba(59,130,246,0.2)', 
+        tension: 0.4, 
         pointRadius: 3,
         pointBackgroundColor: '#3b82f6',
         fill: true,

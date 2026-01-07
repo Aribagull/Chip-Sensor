@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
+import {
   Snowflake, Lock, Mail, User, ShieldCheck, ArrowRight, Eye, EyeOff,
   CheckCircle2
 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import { loginUser } from "../../Api/authonticationUser";
+import logo from '../../Assets/Logo/logo.png';
 
 interface LoginProps {
   initialAdmin?: boolean;
@@ -18,110 +19,109 @@ const Login: React.FC<LoginProps> = ({ initialAdmin = false }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
-  const [loading, setLoading] = useState(false); 
-const [error, setError] = useState<string | null>(null); 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
 
 
-   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    setError("Please enter a valid email address.");
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const data = await loginUser(email, password);
-
-    if (!data.success) {
-      setError(data.message || 'Login failed.');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
       setLoading(false);
       return;
     }
 
-    
-    if (!data.user || !data.token) {
-      setError(data.message || 'Login requires action (e.g., change password).');
+    try {
+      const data = await loginUser(email, password);
+
+      if (!data.success) {
+        setError(data.message || 'Login failed.');
+        setLoading(false);
+        return;
+      }
+
+
+      if (!data.user || !data.token) {
+        setError(data.message || 'Login requires action (e.g., change password).');
+        setLoading(false);
+        return;
+      }
+
+      const role = data.user.role;
+
+      if ((isAdmin && role !== 'admin') || (!isAdmin && role !== 'customer')) {
+        setError(`Invalid credentials for the selected role.`);
+        setLoading(false);
+        return;
+      }
+
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('role', role);
+
+
+      if (role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
+
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      setError(err.message || 'Login failed. Try again.');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const role = data.user.role;
-
-    if ((isAdmin && role !== 'admin') || (!isAdmin && role !== 'customer')) {
-      setError(`Invalid credentials for the selected role.`);
-      setLoading(false);
-      return;
-    }
-
-
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('role', role);
-
-
-    if (role === 'admin') {
-      navigate('/admin/dashboard');
-    } else {
-      navigate('/dashboard');
-    }
-
-  } catch (err: any) {
-    console.error('Login failed:', err);
-    setError(err.message || 'Login failed. Try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
 
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900">
+      <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-900">
         <div className="mx-auto w-full max-w-md">
           {/* Logo */}
           <Link to="/" className="flex items-center justify-center mb-8 group">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 ${
-              isAdmin 
-                ? 'bg-gradient-to-br from-slate-800 to-slate-900' 
-                : 'bg-gradient-to-br from-blue-600 to-cyan-500'
-            }`}>
-              <Snowflake className="w-8 h-8 text-white" />
-            </div>
+
+            <img
+              src={logo}
+              alt="Logo"
+              className="h-24 w-auto mr-3"
+            />
+
           </Link>
-          
+
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               {isAdmin ? 'Admin Portal' : 'Welcome Back'}
             </h1>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-gray-400">
               {isAdmin ? 'Restricted access for administrators' : 'Sign in to your dashboard'}
             </p>
             {error && (
-  <div className="mt-4 text-red-600 text-center font-medium">
-    {error}
-  </div>
-)}
+              <div className="mt-4 text-red-600 text-center font-medium">
+                {error}
+              </div>
+            )}
           </div>
 
           {/* Role Toggle */}
-          <div className="bg-gray-100 dark:bg-slate-800 p-1.5 rounded-2xl mb-8">
+          <div className="bg-slate-800 p-1.5 rounded-2xl mb-8">
             <div className="grid grid-cols-2 gap-1">
               <button
                 type="button"
                 onClick={() => setIsAdmin(false)}
-                className={`flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  !isAdmin 
-                    ? 'bg-white dark:bg-slate-700 text-primary shadow-md' 
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
+                className={`flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${!isAdmin
+                    ? 'bg-slate-700 text-primary shadow-md'
+                    : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                  }`}
               >
                 <User className="w-4 h-4 mr-2" />
                 Customer
@@ -129,11 +129,10 @@ const [error, setError] = useState<string | null>(null);
               <button
                 type="button"
                 onClick={() => setIsAdmin(true)}
-                className={`flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  isAdmin 
-                    ? 'bg-slate-900 dark:bg-slate-700 text-white shadow-md' 
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
+                className={`flex items-center justify-center py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${isAdmin
+                    ? 'bg-slate-700 text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-300'
+                  }`}
               >
                 <ShieldCheck className="w-4 h-4 mr-2" />
                 Admin
@@ -156,14 +155,14 @@ const [error, setError] = useState<string | null>(null);
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={isAdmin ? 'admin@acooler.com' : 'you@company.com'}
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
+                  className="w-full pl-12 pr-4 py-3.5 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-white placeholder-gray-400"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -174,12 +173,12 @@ const [error, setError] = useState<string | null>(null);
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
+                  className="w-full pl-12 pr-12 py-3.5 bg-slate-800 border border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-white placeholder-gray-400"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -195,22 +194,20 @@ const [error, setError] = useState<string | null>(null);
                   onChange={(e) => setRemember(e.target.checked)}
                   className="sr-only"
                 />
-                <div className={`w-5 h-5 rounded-md border-2 mr-3 flex items-center justify-center transition-all ${
-                  remember 
-                    ? 'bg-primary border-primary' 
-                    : 'border-gray-300 dark:border-slate-600 group-hover:border-gray-400'
-                }`}>
+                <div className={`w-5 h-5 rounded-md border-2 mr-3 flex items-center justify-center transition-all ${remember
+                    ? 'bg-primary border-primary'
+                    : 'border-slate-600 group-hover:border-gray-400'
+                  }`}>
                   {remember && <CheckCircle2 className="w-3 h-3 text-white" />}
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
+                <span className="text-sm text-gray-400">Remember me</span>
               </label>
-              <a 
-                href="#" 
-                className={`text-sm font-medium ${
-                  isAdmin 
-                    ? 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' 
+              <a
+                href="#"
+                className={`text-sm font-medium ${isAdmin
+                    ? 'text-gray-300 hover:text-white'
                     : 'text-primary hover:text-blue-700'
-                }`}
+                  }`}
               >
                 Forgot password?
               </a>
@@ -221,15 +218,14 @@ const [error, setError] = useState<string | null>(null);
               type="submit"
               fullWidth
               size="lg"
-              className={`rounded-xl py-4 font-semibold text-base ${
-                isAdmin ? 'bg-slate-900 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600' : ''
-              }`}
+              className={`rounded-xl py-4 font-semibold text-base ${isAdmin ? ' bg-slate-700 hover:bg-slate-600' : ''
+                }`}
             >
               {isAdmin ? 'Access Admin Dashboard' : 'Sign In'}
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
 
-            
+
           </form>
 
           {/* Divider & New Customer */}
@@ -237,10 +233,10 @@ const [error, setError] = useState<string | null>(null);
             <div className="mt-8">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200 dark:border-slate-700" />
+                  <div className="w-full border-t border-slate-700" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400">
+                  <span className="px-4 bg-slate-900 text-gray-400">
                     New to A Cooler Solutions?
                   </span>
                 </div>
@@ -257,7 +253,7 @@ const [error, setError] = useState<string | null>(null);
           )}
 
           {/* Footer Link */}
-          <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-8 text-center text-sm text-gray-400">
             <Link to="/" className="font-medium text-primary hover:text-blue-700">
               ← Back to Home
             </Link>
@@ -267,11 +263,10 @@ const [error, setError] = useState<string | null>(null);
 
       {/* Right Side - Visual (Hidden on mobile) */}
       <div className="hidden lg:flex lg:flex-1 relative overflow-hidden">
-        <div className={`absolute inset-0 ${
-          isAdmin 
-            ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' 
+        <div className={`absolute inset-0 ${isAdmin
+            ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
             : 'bg-gradient-to-br from-blue-600 via-blue-700 to-cyan-600'
-        }`}>
+          }`}>
           {/* Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white rounded-full blur-3xl" />
@@ -292,7 +287,7 @@ const [error, setError] = useState<string | null>(null);
               {isAdmin ? 'Admin Control Center' : 'A Cooler Solutions'}
             </h2>
             <p className="text-lg text-white/80 max-w-md mb-8">
-              {isAdmin 
+              {isAdmin
                 ? 'Manage all customer systems, review requests, and monitor alerts from one central location.'
                 : 'Monitor your refrigeration systems 24/7 with real-time alerts and detailed analytics.'
               }

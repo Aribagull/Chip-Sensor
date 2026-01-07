@@ -3,7 +3,7 @@ import { adminAnalytics } from "../../Api/admin/dashboard";
 import {
   Users, MapPin, Thermometer, Bell, ClipboardList, AlertTriangle,
   ArrowRight, TrendingUp, TrendingDown, Activity, CheckCircle2,
-  Clock, ChevronRight, Zap, Shield
+  Clock, ChevronRight, Zap, Shield, Mail, Phone
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import CustomerChart from "./charts/CustomerChart";
@@ -85,6 +85,14 @@ const AdminDashboard: React.FC = () => {
 
   const sensorsOnline = overall?.activeSensors ?? 0;
   const pendingRequests = overall?.pendingRequests ?? 0;
+  const alertsLast24h = overall?.alertsLast24h ?? 0;
+const totalAlerts = overall?.totalAlerts ?? 0;
+const totalEmailAlerts = overall?.totalEmailAlerts ?? 0;
+const totalSmsAlerts = overall?.totalSmsAlerts ?? 0;
+const totalRequests = overall?.totalRequests ?? 0;
+const inactiveSensors = overall?.inactiveSensors ?? 0;
+const activeSensors = overall?.activeSensors ?? 0;
+
 
   // last 30 days (example)
   const last30DaysCustomers = Array.from({ length: 30 }, (_, i) => ({
@@ -145,62 +153,112 @@ const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* {criticalAlerts > 0 && (
-                <div className="bg-red-500/20 backdrop-blur-sm border border-red-500/30 rounded-2xl px-5 py-3 flex items-center space-x-3 animate-pulse">
-                  <div className="w-10 h-10 bg-red-500/30 rounded-xl flex items-center justify-center">
-                    <AlertTriangle className="w-5 h-5 text-red-400" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-white">{criticalAlerts}</p>
-                    <p className="text-xs text-red-300">Critical Alerts</p>
-                  </div>
-                </div>
-              )} */}
             </div>
           </div>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        <StatCard
-          label="Customers"
-          value={totalCustomers}
-          icon={Users}
-          trend="Total customers"
-          trendUp={true}
-          color="blue"
-        />
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
 
-        <StatCard
-          label="Locations"
-          value={totalLocations}
-          icon={MapPin}
-          trend="Total stores"
-          trendUp={true}
-          color="indigo"
-        />
+  {/* Customers */}
+  <StatCard
+    label="Customers"
+    value={totalCustomers}
+    icon={Users}
+    trend="Total customers"
+    trendUp={true}
+    color="blue"
+  />
 
-        <StatCard
-          label="Sub-Stores"
-          value={totalSubStores}
-          icon={Thermometer}
-          trend="All substores"
-          trendUp={true}
-          color="purple"
-        />
+  {/* Locations */}
+  <StatCard
+    label="Locations"
+    value={totalLocations}
+    icon={MapPin}
+    trend="Total stores"
+    trendUp={true}
+    color="indigo"
+  />
 
-        <StatCard
-          label="Pending Requests"
-          value={pendingRequests}
-          icon={ClipboardList}
-          trend="Needs attention"
-          trendUp={false}
-          color="orange"
-          highlight={pendingRequests > 0}
-        />
+  {/* Sub-Stores */}
+  <StatCard
+    label="Sub-Stores"
+    value={totalSubStores}
+    icon={Thermometer}
+    trend="All substores"
+    trendUp={true}
+    color="purple"
+  />
 
+  {/* Sensors Card */}
+  <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
+    <div className="flex items-center justify-between mb-4">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Sensors</p>
+      <Thermometer className="w-6 h-6 text-blue-500 dark:text-blue-400" />
+    </div>
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-gray-900 dark:text-white">Total Sensors</span>
+        <span className="text-gray-700 dark:text-gray-300">{totalSensors}</span>
       </div>
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-green-600 dark:text-green-400">Active Sensors</span>
+        <span className="text-gray-700 dark:text-gray-300">{activeSensors}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-red-600 dark:text-red-400">Inactive Sensors</span>
+        <span className="text-gray-700 dark:text-gray-300">{inactiveSensors}</span>
+      </div>
+    </div>
+  </div>
+
+  {/* Alerts Card */}
+  <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
+    <div className="flex items-center justify-between mb-4">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Alerts</p>
+      <AlertTriangle className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
+    </div>
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-gray-900 dark:text-white">Total Alerts</span>
+        <span className="text-gray-700 dark:text-gray-300">{totalAlerts}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-blue-600 dark:text-blue-400">Email Alerts</span>
+        <span className="text-gray-700 dark:text-gray-300">{totalEmailAlerts}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-green-600 dark:text-green-400">SMS Alerts</span>
+        <span className="text-gray-700 dark:text-gray-300">{totalSmsAlerts}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-orange-600 dark:text-orange-400">Last 24h</span>
+        <span className="text-gray-700 dark:text-gray-300">{alertsLast24h}</span>
+      </div>
+    </div>
+  </div>
+
+  {/* Requests Card */}
+  <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
+    <div className="flex items-center justify-between mb-4">
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Requests</p>
+      <ClipboardList className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
+    </div>
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-orange-600 dark:text-orange-400">Pending Requests</span>
+        <span className="text-gray-700 dark:text-gray-300">{pendingRequests}</span>
+      </div>
+      <div className="flex justify-between items-center">
+        <span className="font-semibold text-gray-900 dark:text-white">Total Requests</span>
+        <span className="text-gray-700 dark:text-gray-300">{totalRequests}</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">

@@ -70,14 +70,21 @@ export const deleteStore = async (id: string) => {
 };
 
 
-// Get all stores (admin only)
-export const getAllStores = async () => {
+// Get all stores (admin only) 
+export const getAllStores = async (
+  page: number = 1,
+  limit: number = 10
+) => {
   const token = localStorage.getItem('token');
+
   const response = await api.get("/stores/admin/all", {
     headers: { Authorization: `Bearer ${token}` },
+    params: { page, limit },
   });
-  return response.data.stores; 
+
+  return response.data; 
 };
+
 
 // store by customer id (only admin) 
 export const getCustomerStores = async (customerId: string) => {

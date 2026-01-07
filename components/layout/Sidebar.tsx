@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { logoutUser } from "../../Api/authonticationUser";
 import { getUserProfile } from "../../Api/authonticationUser";
 import { getAllRequests } from '../../Api/Sensors/sensorrequests';
+import { toast } from 'react-toastify';
 import { 
   LayoutDashboard, 
   MapPin, 
@@ -63,7 +64,7 @@ const [userProfile, setUserProfile] = useState<any>(null);
       navigate("/login");
     } catch (err: any) {
       console.error("Logout failed:", err.message);
-      alert(err.message || "Logout failed. Try again.");
+      toast.error(err.message || "Logout failed. Try again.");
     }
   };
   const customerLinks: NavItem[] = [

@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 const CustomerDashboard: React.FC = () => {
   return (
     <div className="space-y-8">
-      {/* Welcome Section (Optional, nice touch) */}
       <div>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h2>
         <p className="text-gray-500 dark:text-gray-400 mt-1">Welcome back. Here's what's happening with your cooling systems.</p>

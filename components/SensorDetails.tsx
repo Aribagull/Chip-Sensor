@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
-import { Thermometer, MapPin, ArrowLeft, Edit2, X } from "lucide-react"; // X icon added
+import { Thermometer, MapPin, ArrowLeft, Edit2, X } from "lucide-react"; 
 import TemperatureChart from "../components/dashboard/TemperatureChart";
 import { getSensorById, updateSensorById } from "../Api/Sensors/AddSensor";
 import { FiActivity, FiAlertCircle, FiThermometer } from "react-icons/fi";
+import { toast } from 'react-toastify';
+import ClipLoader from "react-spinners/ClipLoader";
 
 
 const SensorDetails: React.FC = () => {
@@ -37,7 +39,7 @@ useEffect(() => {
 
           setSensorName(res.sensor.sensorName || "");
           setDeviceName(res.sensor.deviceName || "");
-
+          setDeviceIp(res.sensor.deviceIp || ""); 
           setMinTempF(res.sensor.minTempF || 0);
           setMaxTempF(res.sensor.maxTempF || 0);
           setNotificationOn(res.sensor.notificationStatus === "on");
@@ -46,6 +48,21 @@ useEffect(() => {
       .finally(() => setLoading(false));
   }
 }, [sensorId]);
+
+
+const validRecords =
+  sensor?.temperatureRecords?.filter(
+    (r: any) => r.temperatureC !== null && r.temperatureC !== undefined
+  ) || [];
+
+  const chartData = validRecords.map((r: any) =>
+  Number(r.temperatureC.toFixed(2))
+);
+const minTemp =
+  chartData.length > 0 ? Math.floor(Math.min(...chartData)) - 1 : 0;
+
+const maxTemp =
+  chartData.length > 0 ? Math.ceil(Math.max(...chartData)) + 1 : 10;
 
 
 useEffect(() => {
@@ -58,41 +75,61 @@ useEffect(() => {
 
 
 
-  const avgTemp =
-    sensor?.temperatureRecords.reduce((sum: number, r: any) => sum + r.temperatureC, 0) /
-      (sensor?.temperatureRecords.length || 1) || 0;
+ const avgTemp =
+  validRecords.length > 0
+    ? validRecords.reduce(
+        (sum: number, r: any) => sum + r.temperatureC,
+        0
+      ) / validRecords.length
+    : 0;
+
 
  const handleUpdate = async () => {
   if (!sensorId || !sensor) return;
 
   try {
     const res = await updateSensorById(sensorId, {
-      sensorName,
-      deviceName,
-      minTempF,
-      maxTempF,
-      notificationStatus: notificationOn ? "on" : "off",
-    }, sensor); // pass current sensor object
+  sensorName,
+  deviceName,
+  minTempF,
+  maxTempF,
+  notificationOn,
+}, sensor); 
+
 
     if (res.success) {
       setSensor(res.sensor);
       setEditModalOpen(false);
+       toast.success("Sensor updated successfully!");
     } else {
-      alert(res.message || "Failed to update sensor");
+      toast.error(res.message || "Failed to update sensor");
     }
   } catch (err) {
     console.error(err);
-    alert("Failed to update sensor");
+    toast.error("Failed to update sensor");
   }
 };
 
 
 
 
-  if (loading)
-    return <p className="text-center mt-10 text-gray-800 dark:text-white">Loading sensor details...</p>;
-  if (!sensor)
-    return <p className="text-center mt-10 text-gray-800 dark:text-white">Sensor not found</p>;
+
+ if (loading) {
+  return (
+    <div className="flex justify-center items-center min-h-screen">
+      <ClipLoader color="#3B82F6" size={60} />
+    </div>
+  );
+}
+
+if (!sensor) {
+  return (
+    <p className="text-center mt-10 text-gray-800 dark:text-white">
+      Sensor not found
+    </p>
+  );
+}
+
 
   return (
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-white">
@@ -105,17 +142,43 @@ useEffect(() => {
         Back to My Stores
       </Link>
 
-      {/* Sensor Info */}
-      <div className="mb-10">
-        <h1 className="flex items-center text-2xl lg:text-3xl text-gray-500 dark:text-gray-400 gap-2">
-          <Thermometer className="h-4 w-4" />
-          {sensor.sensorName || "Substore Name"}
-        </h1>
-        <div className="flex items-center gap-1.5 mt-2">
-          <MapPin className="h-4 w-4 mr-1" />
-          {sensor.storeId?.address || "Address not available"}
-        </div>
-      </div>
+   
+      {/* Sensor Info Header */}
+<div className="bg-white dark:bg-slate-800 shadow-md rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 transition-colors">
+  {/* Left: Substore Name and Sensor Name */}
+  <div className="flex flex-col">
+    {/* Substore Name */}
+    <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white">
+      {sensor.subStoreId?.name || "Substore Name"}
+    </h1>
+
+    {/* Sensor Name */}
+    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      {sensor.sensorName || "Sensor Name"}
+    </p>
+
+    {/* Address */}
+    <div className="flex items-center gap-2 mt-2 text-gray-600 dark:text-gray-300 text-sm">
+      <MapPin className="h-4 w-4" />
+      <span>{sensor.storeId?.address || "Address not available"}</span>
+    </div>
+  </div>
+
+  {/* Right: Current Temp & Status */}
+  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 mt-4 md:mt-0">
+    <div className="flex flex-col items-center bg-gray-100 dark:bg-slate-700 px-4 py-2 rounded-xl border border-blue-300">
+      <p className="text-sm text-gray-500 dark:text-gray-400">Current Temp</p>
+      <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+        {sensor.currentTempF?.toFixed(1) || avgTemp.toFixed(1)}°F
+      </p>
+    </div>
+
+    <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 font-medium">
+      {sensor.status === "on" ? "Active" : "Inactive"}
+    </span>
+  </div>
+</div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* LEFT SIDE – Sensor Details */}
@@ -160,7 +223,7 @@ useEffect(() => {
           <div>
             <p className="text-gray-500 dark:text-gray-400">Current Temperature</p>
             <p className="text-5xl font-bold mt-2">
-              {sensor.currentTempC?.toFixed(1) || avgTemp.toFixed(1)}°C
+              {sensor.currentTempF?.toFixed(1) || avgTemp.toFixed(1)}°F
             </p>
           </div>
 
@@ -201,13 +264,17 @@ useEffect(() => {
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
           <h3 className="text-xl font-semibold mb-4">Temperature Records</h3>
           <TemperatureChart
-            data={sensor.temperatureRecords.map((r: any) => r.temperatureC)}
-            labels={sensor.temperatureRecords.map((r: any) =>
-              new Date(r.recordedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-            )}
-            minTemp={sensor.minTempC}
-            maxTemp={sensor.maxTempC}
-          />
+  data={chartData}
+  labels={validRecords.map((r: any) =>
+    new Date(r.recordedAt).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  )}
+  minTemp={minTemp}
+  maxTemp={maxTemp}
+/>
+
         </div>
       </div>
 

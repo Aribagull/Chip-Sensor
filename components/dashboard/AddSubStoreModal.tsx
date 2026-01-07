@@ -23,6 +23,8 @@ const AddSubStoreModal: React.FC<Props> = ({
   storeId,
 }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [topError, setTopError] = useState('');
+
 
   // ---------------- Validation ----------------
   const validatePhoneImmediate = (value: string) => {
@@ -63,6 +65,41 @@ const AddSubStoreModal: React.FC<Props> = ({
     if (name.includes('email')) error = validateEmail(value);
     setErrors((prev) => ({ ...prev, [name]: error }));
   };
+
+const validateAll = () => {
+  const newErrors: Record<string, string> = {};
+
+  ['1','2','3'].forEach(level => {
+    // Phones
+    const phones: string[] = Array.isArray(form[`phoneNumbersLevel${level}`]) ? form[`phoneNumbersLevel${level}`] : [];
+    phones.forEach((phone, idx) => {
+      const error = validatePhoneOnBlur(phone);
+      if (error) newErrors[`phone-${level}-${idx}`] = error;
+    });
+
+    // Emails
+    const emails: string[] = Array.isArray(form[`emailRecipientsLevel${level}`]) ? form[`emailRecipientsLevel${level}`] : [];
+    emails.forEach((email, idx) => {
+      const error = validateEmail(email);
+      if (error) newErrors[`email-${level}-${idx}`] = error;
+    });
+  });
+
+  setErrors(newErrors);
+
+  if (Object.keys(newErrors).length > 0) {
+    setTopError('Please fix errors before creating the Sub-Store.');
+    return false;
+  } else {
+    setTopError('');
+    return true;
+  }
+};
+
+
+
+
+
 
   // ---------------- Dynamic Phone/Email ----------------
   const addField = (level: number, type: 'phone' | 'email') => {
@@ -199,35 +236,44 @@ const AddSubStoreModal: React.FC<Props> = ({
   };
 
   // ---------------- Submit Handler ----------------
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+ const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
 
-    const cleanArrayOrRemove = (arr?: string[]) => {
-  const cleaned = (arr || []).filter(item => item && item.trim() !== '');
-  return cleaned.length > 0 ? cleaned : undefined; 
+  if (!validateAll()) {
+    return;
+  }
+
+  const cleanArrayOrRemove = (arr?: string[]) => {
+    const cleaned = (arr || []).filter(item => item && item.trim() !== '');
+    return cleaned.length > 0 ? cleaned : undefined; 
+  };
+
+  const payload = {
+    name: form.name,
+    location: form.location,
+    notification_status: form.notificationStatus ? "on" : "off",
+    phoneNumbersLevel1: cleanArrayOrRemove(form.phoneNumbersLevel1),
+    phoneNumbersLevel2: cleanArrayOrRemove(form.phoneNumbersLevel2),
+    phoneNumbersLevel3: cleanArrayOrRemove(form.phoneNumbersLevel3),
+
+    emailRecipientsLevel1: cleanArrayOrRemove(form.emailRecipientsLevel1),
+    emailRecipientsLevel2: cleanArrayOrRemove(form.emailRecipientsLevel2),
+    emailRecipientsLevel3: cleanArrayOrRemove(form.emailRecipientsLevel3),
+  };
+
+  onSubmit(payload); 
 };
 
-
-
-    const payload = {
-      name: form.name,
-      location: form.location,
-      notification_status: form.notificationStatus ? "on" : "off",
-      phoneNumbersLevel1: cleanArrayOrRemove(form.phoneNumbersLevel1),
-      phoneNumbersLevel2: cleanArrayOrRemove(form.phoneNumbersLevel2),
-      phoneNumbersLevel3: cleanArrayOrRemove(form.phoneNumbersLevel3),
-
-      emailRecipientsLevel1: cleanArrayOrRemove(form.emailRecipientsLevel1),
-      emailRecipientsLevel2: cleanArrayOrRemove(form.emailRecipientsLevel2),
-      emailRecipientsLevel3: cleanArrayOrRemove(form.emailRecipientsLevel3),
-    };
-
-    onSubmit(payload); // API call
-  };
 
   // ---------------- Render Modal ----------------
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="5xl" title="Add New Sub-Store">
+      {topError && (
+  <div className="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm font-medium">
+    {topError}
+  </div>
+)}
+
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

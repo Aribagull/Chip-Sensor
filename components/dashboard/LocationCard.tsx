@@ -38,6 +38,7 @@ const LocationCard: React.FC<LocationCardProps> = ({
   const [address, setAddress] = useState('');
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
+const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
 
   const openEditModal = () => {
@@ -80,26 +81,23 @@ setIsEditOpen(false);
     }
   };
 
-  const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this store? This will delete all its substores and sensors.'
-    );
-    if (!confirmDelete) return;
+const openDeleteModal = () => setIsDeleteModalOpen(true);
 
-    setLoadingDelete(true);
-    try {
-      const res = await deleteStore(location._id);
+const handleConfirmDelete = async () => {
+  setLoadingDelete(true);
+  try {
+    const res = await deleteStore(location._id);
+    toast.success(res.message || 'Store deleted successfully');
+    onDelete(location._id);
+    setIsDeleteModalOpen(false);
+  } catch (error: any) {
+    console.error('Error deleting store:', error.response?.data || error.message);
+    toast.error(error.response?.data?.message || 'Failed to delete store');
+  } finally {
+    setLoadingDelete(false);
+  }
+};
 
-      toast.success(res.message || 'Store deleted successfully');
-onDelete(location._id);
-
-    } catch (error: any) {
-      console.error('Error deleting store:', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || 'Failed to delete store');
-    } finally {
-      setLoadingDelete(false);
-    }
-  };
 
 
   return (
@@ -112,7 +110,7 @@ onDelete(location._id);
   shadow-sm hover:shadow-md transition
 ">
   {/* Header */}
-  <div className="p-6 flex justify-between items-start  ">
+  <div className="p-6 flex justify-between items-start bg-gray-50 dark:bg-slate-800 rounded-t-2xl">
     <Link
       to={`/dashboard/locations/${location._id}`}
       state={{ storeName: location.storeName }}
@@ -145,15 +143,20 @@ onDelete(location._id);
             {location.subStores.length} Sub-stores
           </div>
 
-          <div className="
-            flex items-center gap-2 px-3 py-1 rounded-full
-            bg-green-100 text-green-700
-            dark:bg-emerald-500/10 dark:text-emerald-400
-            text-sm font-medium
-          ">
-            <Thermometer className="h-4 w-4" />
-            {sensorCount} Sensors
-          </div>
+          <div
+  className={`
+    flex items-center gap-2 px-3 py-1 rounded-full
+    text-sm font-medium
+    ${sensorCount > 0 
+      ? 'bg-green-100 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-400' 
+      : 'bg-gray-100 text-gray-400 dark:bg-slate-700/20 dark:text-slate-400'
+    }
+  `}
+>
+  <Thermometer className="h-4 w-4" />
+  {sensorCount} Sensors
+</div>
+
         </div>
       </div>
     </Link>
@@ -176,17 +179,18 @@ onDelete(location._id);
       </button>
 
       <button
-        onClick={handleDelete}
-        disabled={loadingDelete}
-        className="
-          p-2 rounded-lg
-          border border-gray-200 dark:border-slate-600
-          hover:bg-red-50 dark:hover:bg-red-500/10
-          transition
-        "
-      >
-        <Trash2 className="h-4 w-4 text-red-500" />
-      </button>
+  onClick={openDeleteModal}
+  disabled={loadingDelete}
+  className="
+    p-2 rounded-lg
+    border border-gray-200 dark:border-slate-600
+    hover:bg-red-50 dark:hover:bg-red-500/10
+    transition
+  "
+>
+  <Trash2 className="h-4 w-4 text-red-500" />
+</button>
+
     </div>
   </div>
 
@@ -198,6 +202,33 @@ onDelete(location._id);
     <p className="text-xs tracking-widest text-gray-400 dark:text-slate-500 mb-4">
   SUB-STORES ({location.subStores.length})
 </p>
+<Modal
+  isOpen={isDeleteModalOpen}
+  onClose={() => setIsDeleteModalOpen(false)}
+  title="Confirm Delete"
+>
+  <p className="text-gray-700 dark:text-gray-300">
+    Are you sure you want to delete this store? This will delete all its substores and sensors.
+  </p>
+
+  <div className="flex justify-end mt-4 gap-3">
+    <Button
+      variant="secondary"
+      onClick={() => setIsDeleteModalOpen(false)}
+    >
+      Cancel
+    </Button>
+    <Button
+  variant="secondary" 
+  className="bg-red-600 hover:bg-red-700 text-white"
+  onClick={handleConfirmDelete}
+  disabled={loadingDelete}
+>
+  {loadingDelete ? "Deleting..." : "Delete"}
+</Button>
+
+  </div>
+</Modal>
 
 
     <div className="space-y-3">

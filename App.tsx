@@ -86,7 +86,7 @@ const App: React.FC = () => {
             <Route path="locations" element={<Locations />} />
             <Route path="locations/:id" element={<LocationDetail />} />
             <Route
-              path="locations/:storeId/substores/:subStoreId"
+              path="locations/:id/substores/:subStoreId"
               element={<LocationDetail />}
             />
              <Route path="/dashboard/sensors/sensor/:sensorId" element={<SensorDetails/>} />

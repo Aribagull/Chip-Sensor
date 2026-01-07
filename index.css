@@ -14,3 +14,22 @@
 .Toastify__toast--success {
   border-left: 6px solid #2563eb;
 }
+
+
+@keyframes floatUpDown {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px); /* upar kitna move karna hai */
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-floating {
+  animation: floatUpDown 3s ease-in-out infinite;
+}
+
+
