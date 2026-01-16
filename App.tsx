@@ -34,6 +34,7 @@ import AdminSettings from './pages/dashboard/admin/AdminSettings';
 import Unauthorized from './pages/Unauthorized';
 import AdminSubStores from './pages/dashboard/admin/AdminSubStores';
 import SensorDetails from './components/SensorDetails';
+import { UserProvider } from './context/UserContext';
 
 // Wrapper for Public Pages
 const PublicLayout: React.FC = () => (
@@ -50,6 +51,7 @@ const App: React.FC = () => {
   return (
 
     <ThemeProvider>
+      <UserProvider>
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -114,6 +116,7 @@ const App: React.FC = () => {
           </Route>
         </Routes>
       </HashRouter>
+      </UserProvider>
     </ThemeProvider>
   );
 };

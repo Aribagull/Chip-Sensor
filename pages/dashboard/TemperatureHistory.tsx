@@ -4,7 +4,8 @@ import Button from '../../components/ui/Button';
 import TemperatureChart from '@/components/dashboard/TemperatureChart';
 import { getMyStores } from '../../Api/Stores/store';
 import { Thermometer, ArrowUp, ArrowDown, Activity } from 'lucide-react';
-import ClipLoader from "react-spinners/ClipLoader";
+import PulseLoader from "react-spinners/PulseLoader";
+
 
 const TemperatureHistory: React.FC = () => {
   const [stores, setStores] = useState<any[]>([]);
@@ -126,31 +127,32 @@ const TemperatureHistory: React.FC = () => {
       <Card title="Temperature Trend" className="h-96">
         <div className="h-full flex justify-center items-center">
           {loading ? (
-            <ClipLoader color="#3b82f6" size={50} />
+            <PulseLoader color="#3b82f6" size={15} />
           ) : selectedSensor && selectedSensor.temperatureRecords?.length ? (
             <TemperatureChart
               data={selectedSensor.temperatureRecords
-                .map((r: any) => r.temperatureC)
+                .map((r: any) => r.currentTempC)
                 .filter(t => t !== null && t !== undefined)}
               labels={selectedSensor.temperatureRecords
-                .filter((r: any) => r.temperatureC !== null && r.temperatureC !== undefined)
+                .filter((r: any) => r.currentTempC !== null && r.currentTempC !== undefined)
                 .map((r: any) => {
                   const d = new Date(r.recordedAt);
                   return `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
                 })}
               minTemp={Math.min(
                 ...selectedSensor.temperatureRecords
-                  .map((r: any) => r.temperatureC)
+                  .map((r: any) => r.currentTempC)
                   .filter(t => t !== null && t !== undefined),
                 0
               )}
               maxTemp={Math.max(
                 ...selectedSensor.temperatureRecords
-                  .map((r: any) => r.temperatureC)
+                  .map((r: any) => r.currentTempC)
                   .filter(t => t !== null && t !== undefined),
                 100
               )}
             />
+
 
           ) : (
             <p className="text-center text-gray-500 dark:text-gray-400">No temperature records found</p>
@@ -194,8 +196,9 @@ const TemperatureHistory: React.FC = () => {
                     const d = new Date(r.recordedAt);
                     const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
                     if (!grouped[dateKey]) grouped[dateKey] = [];
-                    grouped[dateKey].push(r.temperatureC);
+                    grouped[dateKey].push(r.currentTempC);
                   });
+
 
                   // Create table rows per day
                   return Object.keys(grouped).map(date => {

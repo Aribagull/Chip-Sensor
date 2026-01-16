@@ -3,8 +3,9 @@ import { Store, MapPin, User, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
-import { getAllStores } from '../../../Api/Stores/store';
-import ClipLoader from "react-spinners/ClipLoader";
+import { getAllUsers } from '../../../Api/admin/customers';
+
+import PulseLoader from "react-spinners/PulseLoader";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from 'react-toastify';
 
@@ -34,30 +35,43 @@ const AdminLocations: React.FC = () => {
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-const [itemsPerPage] = useState(10);
-const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
 
 
-  useEffect(() => {
-  const fetchStores = async () => {
+ useEffect(() => {
+  const fetchUsers = async () => {
     try {
       setLoading(true);
 
-      const data = await getAllStores(currentPage, itemsPerPage);
+      const data = await getAllUsers(currentPage, itemsPerPage);
+      const allStores = data.customers?.flatMap((customer: any) =>
+        (customer.stores || []).map((store: any) => ({
+          ...store,
+          ownerUserId: {
+            _id: customer._id,
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone,
+          },
+        }))
+      ) || [];
 
-      setStores(data.stores || []);
-      setTotalPages(data.pagination.totalPages);
+      setStores(allStores);
+      setTotalPages(data.pagination?.totalPages || 1);
 
     } catch (error) {
-      console.error('Error fetching all stores:', error);
+      console.error('Error fetching all users:', error);
       toast.error("Failed to load stores. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  fetchStores();
+  fetchUsers();
 }, [currentPage]);
+
+
 
 
   const filteredStores = selectedCustomer === 'all'
@@ -108,12 +122,12 @@ const [totalPages, setTotalPages] = useState(1);
               {loading ? (
                 <tr>
                   <td colSpan={8}> <div className="flex justify-center items-center h-40">
-        <ClipLoader
-          color="#0f41ccff"
-          loading={loading}
-          size={50}
-        />
-      </div></td>
+                    <PulseLoader
+                      color="#3b82f6"
+                      loading={loading}
+                      size={15}
+                    />
+                  </div></td>
                 </tr>
               ) : filteredStores.length === 0 ? (
                 <tr>
@@ -157,9 +171,13 @@ const [totalPages, setTotalPages] = useState(1);
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 whitespace-nowrap flex items-center text-sm text-gray-500 dark:text-gray-400">
-                        <MapPin className="h-4 w-4 mr-1 text-yellow-600" /> {store.address}
+                      <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div className="flex items-start gap-2 max-w-[220px] whitespace-normal break-words leading-5">
+                          <MapPin className="h-4 w-4 mt-0.5 text-yellow-600" />
+                          {store.address}
+                        </div>
                       </td>
+
 
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-mono">{store.subStores?.length || 0}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-mono">{sensorCount}</td>
@@ -177,33 +195,33 @@ const [totalPages, setTotalPages] = useState(1);
             </tbody>
           </table>
           <div className="flex items-center justify-between px-6 py-4 border-t dark:border-slate-700">
-  <p className="text-sm text-gray-500 dark:text-gray-400">
-    Page <span className="font-semibold">{currentPage}</span> of{" "}
-    <span className="font-semibold">{totalPages}</span>
-  </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Page <span className="font-semibold">{currentPage}</span> of{" "}
+              <span className="font-semibold">{totalPages}</span>
+            </p>
 
-  <div className="flex gap-2">
-    <Button
-      variant="secondary"
-      disabled={currentPage === 1}
-      onClick={() => setCurrentPage(prev => prev - 1)}
-      className="flex items-center gap-1"
-    >
-      <ChevronLeft size={16} />
-      Previous
-    </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                className="flex items-center gap-1"
+              >
+                <ChevronLeft size={16} />
+                Previous
+              </Button>
 
-    <Button
-      variant="secondary"
-      disabled={currentPage === totalPages}
-      onClick={() => setCurrentPage(prev => prev + 1)}
-      className="flex items-center gap-1"
-    >
-      Next
-      <ChevronRight size={16} />
-    </Button>
-  </div>
-</div>
+              <Button
+                variant="secondary"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                className="flex items-center gap-1"
+              >
+                Next
+                <ChevronRight size={16} />
+              </Button>
+            </div>
+          </div>
         </div>
 
       </Card>

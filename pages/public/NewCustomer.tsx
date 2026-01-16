@@ -231,9 +231,9 @@ const services = [
     }
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-slate-900">
         {/* Header */}
-        <div className="bg-gradient-to-br from-blue-900 to-slate-900 py-16 px-4">
+        <div className="bg-gradient-to-br from-blue-900 to-slate-900 py-16 pt-40 px-4">
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
               <Sparkles className="w-4 h-4 text-yellow-400 mr-2" />
@@ -250,22 +250,22 @@ const services = [
 
         {/* Progress Bar */}
         <div className="max-w-2xl mx-auto px-4 -mt-4">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-4 border border-gray-100 dark:border-slate-700">
+          <div className="bg-slate-800 rounded-2xl shadow-lg p-4 border border-slate-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= 1 ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-500'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= 1 ? 'bg-primary text-white' : 'bg-slate-700 text-gray-500'}`}>
                   1
                 </div>
-                <span className={`font-medium ${step >= 1 ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>Your Info</span>
+                <span className={`font-medium ${step >= 1 ? 'text-white' : 'text-gray-500'}`}>Your Info</span>
               </div>
-              <div className="flex-1 h-1 mx-4 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div className="flex-1 h-1 mx-4 bg-slate-700 rounded-full overflow-hidden">
                 <div className={`h-full bg-primary transition-all duration-500 ${step >= 2 ? 'w-full' : 'w-0'}`} />
               </div>
               <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= 2 ? 'bg-primary text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-500'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${step >= 2 ? 'bg-primary text-white' : 'bg-slate-700 text-gray-500'}`}>
                   2
                 </div>
-                <span className={`font-medium ${step >= 2 ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>Services</span>
+                <span className={`font-medium ${step >= 2 ? 'text-white' : 'text-gray-500'}`}>Services</span>
               </div>
             </div>
           </div>
@@ -275,13 +275,13 @@ const services = [
         <div className="max-w-2xl mx-auto px-4 py-8">
           <form onSubmit={handleSubmit}>
             {step === 1 && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 dark:border-slate-700 animate-fadeIn">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Contact Information</h2>
+              <div className="bg-slate-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-slate-700 animate-fadeIn">
+                <h2 className="text-xl font-bold text-white mb-6">Contact Information</h2>
 
                 <div className="space-y-5">
                   {/* Name */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Full Name *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Full Name *</label>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
@@ -291,14 +291,14 @@ const services = [
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="John Doe"
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
+                        className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
                       />
                     </div>
                   </div>
 
                   {/* Company */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company Name *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Company Name *</label>
                     <div className="relative">
                       <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <input
@@ -308,7 +308,7 @@ const services = [
                         value={formData.company}
                         onChange={handleInputChange}
                         placeholder="Acme Corporation"
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
+                        className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
                       />
                     </div>
                   </div>
@@ -317,7 +317,7 @@ const services = [
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {/* Email */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email *</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Email *</label>
                       <div className="relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
@@ -327,7 +327,7 @@ const services = [
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="john@company.com"
-                          className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
+                          className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
                         />
                         {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
                       </div>
@@ -335,7 +335,7 @@ const services = [
 
                     {/* Phone */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone *</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Phone *</label>
                       <div className="relative">
                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
@@ -345,7 +345,7 @@ const services = [
                           value={formData.phone}
                           onChange={handleInputChange}
                           placeholder="(555) 123-4567"
-                          className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
+                          className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-white placeholder-gray-400"
                         />
                         {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
                       </div>
@@ -354,7 +354,7 @@ const services = [
 
                   {/* Password Field */}
                   <div className="mt-5">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Password *</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
                         🔒
@@ -366,7 +366,7 @@ const services = [
                         value={formData.password}
                         onChange={handleInputChange}
                         placeholder="Enter a secure password"
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400"
+                        className="w-full pl-12 pr-4 py-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-white placeholder-gray-400"
                       />
                       {isStrongPassword && (
                         <p className="text-green-600 text-sm mt-1 flex items-center gap-1">
@@ -402,9 +402,9 @@ const services = [
             {step === 2 && (
               <div className="space-y-6 animate-fadeIn">
                 {/* Services Selection */}
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 dark:border-slate-700">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Interested Services</h2>
-                  <p className="text-gray-500 dark:text-gray-400 mb-6">Select all that apply</p>
+                <div className="bg-slate-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-slate-700">
+                  <h2 className="text-xl font-bold text-white mb-2">Interested Services</h2>
+                  <p className="text-gray-400 mb-6">Select all that apply</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {services.map((service) => {
@@ -415,22 +415,22 @@ const services = [
                           key={service.id}
                           onClick={() => handleServiceToggle(service.id)}
                           className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${isSelected
-                            ? 'border-primary bg-primary/5 dark:bg-primary/10'
-                            : 'border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-slate-600 hover:border-slate-500'
                             }`}
                         >
                           <div className="flex items-start space-x-3">
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isSelected
                               ? 'bg-primary text-white'
-                              : 'bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400'
+                              : 'bg-slate-700 text-gray-400'
                               }`}>
                               <service.icon className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                              <p className={`font-semibold ${isSelected ? 'text-primary' : 'text-gray-900 dark:text-white'}`}>
+                              <p className={`font-semibold ${isSelected ? 'text-primary' : 'text-white'}`}>
                                 {service.label}
                               </p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">{service.desc}</p>
+                              <p className="text-sm text-gray-400">{service.desc}</p>
                             </div>
                             {isSelected && (
                               <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
@@ -443,9 +443,9 @@ const services = [
                 </div>
 
                 {/* Message */}
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 sm:p-8 border border-gray-100 dark:border-slate-700">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Additional Message</h2>
-                  <p className="text-gray-500 dark:text-gray-400 mb-6">Tell us more about your needs (optional)</p>
+                <div className="bg-slate-800 rounded-2xl shadow-lg p-6 sm:p-8 border bborder-slate-700">
+                  <h2 className="text-xl font-bold text-white mb-2">Additional Message</h2>
+                  <p className="text-gray-400 mb-6">Tell us more about your needs (optional)</p>
 
                   <textarea
                     name="message"
@@ -453,7 +453,7 @@ const services = [
                     value={formData.message}
                     onChange={handleInputChange}
                     placeholder="How can we help you? Any specific requirements or questions?"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white placeholder-gray-400 resize-none"
+                    className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-white placeholder-gray-400 resize-none"
                   />
                 </div>
 

@@ -18,6 +18,16 @@ const Header: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (location.hash) {
+      const el = document.querySelector(location.hash);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [location]);
+
+
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Services', href: '/#services' },
@@ -34,15 +44,16 @@ const Header: React.FC = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <img 
-              src={logo} 
-              alt="Logo" 
-              className="h-20 w-auto mr-3"
-            />
-            <span className="text-2xl font-bold text-white">
-              A Cooler <span className="text-blue-400">Solutions</span>
-            </span>
-          </Link>
+  <img
+    src={logo}
+    alt="Logo"
+    className="h-20 w-auto mr-3"
+  />
+  <span className="hidden md:inline-block text-2xl font-bold text-white">
+    A Cooler <span className="text-blue-400">Solutions</span>
+  </span>
+</Link>
+
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex space-x-8">
@@ -50,12 +61,16 @@ const Header: React.FC = () => {
               <Link
                 key={link.label}
                 to={link.href}
-                className="text-gray-300 hover:text-white font-medium transition-colors"
+                className="relative text-gray-300 hover:text-white font-medium transition-colors
+                 before:absolute before:-bottom-1 before:left-0 before:w-0 before:h-0.5
+                 before:bg-blue-400 before:transition-all before:duration-300
+                 hover:before:w-full"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
+
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">

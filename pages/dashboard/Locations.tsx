@@ -8,7 +8,7 @@ import LocationCard from '../../components/dashboard/LocationCard';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
 import { createStore, getMyStores, getStoreById } from '../../Api/Stores/store';
-import ClipLoader from "react-spinners/ClipLoader";
+import PulseLoader from "react-spinners/PulseLoader";
 import { toast } from "react-toastify";
 
 
@@ -185,7 +185,7 @@ const handleStoreDelete = (id: string) => {
   {/* Total Stores */}
   <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
     <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl">
-      <Store className="w-6 h-6 text-slate-700 dark:text-slate-300" />
+      <Store className="w-6 h-6 text-slate-700 dark:text-yellow-600" />
     </div>
     <div>
       <p className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -274,7 +274,7 @@ const handleStoreDelete = (id: string) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 min-h-[200px] relative">
   {loadingStores ? (
     <div className="absolute inset-0 flex justify-center items-center  z-10">
-      <ClipLoader color="#0f41ccff" loading={loadingStores} size={50} />
+      <PulseLoader color="#3b82f6" loading={loadingStores} size={15} />
     </div>
   ) : stores.length === 0 ? (
     <p className="text-center col-span-full text-gray-500">No stores found</p>

@@ -6,6 +6,8 @@ import Toggle from '../../components/ui/Toggle';
 import { getUserProfile, updateUserProfile, changePassword } from '../../Api/authonticationUser';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useUser } from "../../context/UserContext";
+
 
 // Interface for User Profile
 interface UserProfile {
@@ -26,6 +28,8 @@ const Settings: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const { setUser } = useUser();
+
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -39,6 +43,7 @@ const Settings: React.FC = () => {
         const data = await getUserProfile();
         if (data.success) {
           setProfile(data.user);
+          setUser(data.user);
 
           const nameParts = data.user.name?.split(' ') || [];
           setFirstName(nameParts[0] || '');
@@ -72,6 +77,7 @@ const Settings: React.FC = () => {
       if (data.success) {
         toast.success("Profile updated successfully!");
         setProfile(data.user);
+        setUser(data.user);
       } else {
          toast.error("Failed to update profile");
       }
@@ -193,15 +199,15 @@ const Settings: React.FC = () => {
         <div className="space-y-6">
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Email Notifications</h4>
-              <p className="text-sm text-gray-500 mb-2">Sent to {email}</p>
-              <p className="text-xs font-bold text-gray-700">24 sent this month</p>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <h4 className="font-medium text-gray-900 dark:text-white mb-2">Email Notifications</h4>
+              <p className="text-sm text-gray-500 dark:text-gray-300 mb-2">Sent to {email}</p>
+              <p className="text-xs font-bold text-gray-700 dark:text-gray-300">24 sent this month</p>
             </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">WhatsApp Notifications</h4>
-              <p className="text-sm text-gray-500 mb-2">Sent to {phone}</p>
-              <p className="text-xs font-bold text-gray-700">12 sent this month</p>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <h4 className="font-medium text-gray-900 dark:text-white mb-2">WhatsApp Notifications</h4>
+              <p className="text-sm text-gray-500 dark:text-gray-300 mb-2">Sent to {phone}</p>
+              <p className="text-xs font-bold text-gray-700 dark:text-gray-300">12 sent this month</p>
             </div>
           </div>
         </div>

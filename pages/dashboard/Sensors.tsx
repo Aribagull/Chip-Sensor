@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Thermometer, DoorOpen, Wifi, WifiOff } from 'lucide-react';
+import { Thermometer, DoorOpen, Wifi, WifiOff, Store, Layers } from 'lucide-react';
 import Card from '../../components/ui/Card';
-import { getMySensors } from '../../Api/Sensors/AddSensor'; 
+import { getMySensors } from '../../Api/Sensors/AddSensor';
 import { Link } from 'react-router-dom';
-import ClipLoader from "react-spinners/ClipLoader";
+import PulseLoader from "react-spinners/PulseLoader";
+
 
 const Sensors: React.FC = () => {
   const [sensors, setSensors] = useState<any[]>([]);
@@ -53,7 +54,7 @@ const Sensors: React.FC = () => {
                 <tr>
                   <td colSpan={6}>
                     <div className="flex justify-center items-center py-20">
-                      <ClipLoader color="#3b82f6" size={40} />
+                      <PulseLoader color="#3b82f6" size={15} />
                     </div>
                   </td>
                 </tr>
@@ -95,9 +96,17 @@ const Sensors: React.FC = () => {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white font-medium">{sensor.storeId?.storeName}</div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{sensor.subStoreId?.name}</div>
+                      <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-white font-medium">
+                        <Store size={16} className="text-blue-500" />
+                        {sensor.storeId?.storeName || "No Store"}
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <Layers size={16} className="text-blue-500" />
+                        {sensor.subStoreId?.name || "No Substore"}
+                      </div>
                     </td>
+
 
                     <td className="px-6 py-4 whitespace-nowrap font-mono text-gray-900 dark:text-white">
                       {sensor.currentTempC?.toFixed(1) ?? '--'}°C
@@ -109,8 +118,9 @@ const Sensors: React.FC = () => {
 
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
-                        to={`/dashboard/sensors/sensor/${sensor._id}`} 
-                        className="text-primary hover:text-blue-700 dark:hover:text-blue-300 font-bold transition-colors"
+                        to={`/dashboard/sensors/sensor/${sensor._id}`}
+                        state={{ sensorName: sensor.sensorName }}
+                        className="text-primary hover:text-blue-700 dark:hover:text-blue-300 font-bold transition-colors border border-blue-500 p-2 rounded-lg"
                       >
                         History
                       </Link>

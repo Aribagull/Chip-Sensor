@@ -1,4 +1,4 @@
-import api from "../axiosInstance"; 
+import api from "../axiosInstance";
 
 // Get all users 
 export const getAllUsers = async (
@@ -34,7 +34,7 @@ export const getUserById = async (id: string) => {
   const response = await api.get(`/auth/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  return response.data.data.user;
+  return response.data.user;
 };
 
 // Delete user by ID

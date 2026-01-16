@@ -1,6 +1,6 @@
 import React, { useState, useEffect  } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { MapPin, Edit2, Plus, ArrowLeft, Thermometer, DoorOpen, Wifi, CheckCircle2 } from 'lucide-react';
+import { MapPin, Edit2, Plus, ArrowLeft, Thermometer, DoorOpen, Wifi, CheckCircle2, Store } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import SubStoreAccordion from '../../components/dashboard/SubStoreAccordion';
 import Modal from '../../components/ui/Modal';
@@ -9,7 +9,7 @@ import { getStoreById } from '../../Api/Stores/store';
 import AddSubStoreModal from '../../components/dashboard/AddSubStoreModal';
 import { createSubStore } from '../../Api/Stores/subStore';
 import { createRequest } from '../../Api/Sensors/sensorrequests';
-import ClipLoader from "react-spinners/ClipLoader";
+import PulseLoader from "react-spinners/PulseLoader";
 import { toast } from "react-toastify";
 
 interface SubStore {
@@ -94,6 +94,20 @@ useEffect(() => {
 }, [storeId, subStoreId]);
 
 
+const handleDeleteSubStoreUI = (deletedId) => {
+  setLocation(prev => {
+    if (!prev) return prev;
+
+    return {
+      ...prev,
+      subStores: prev.subStores.filter(
+        sub => sub._id !== deletedId
+      ),
+    };
+  });
+};
+
+
 
 
  useEffect(() => {
@@ -111,6 +125,7 @@ useEffect(() => {
     [name]: type === 'checkbox' ? checked : value,
   }));
 };
+
 
 
   
@@ -164,6 +179,28 @@ useEffect(() => {
     setIsAddSubStoreOpen(true);
   };
 
+ const handleSubStoreUpdated = (updatedSubStore: SubStore) => {
+  if (!location || !updatedSubStore || !updatedSubStore._id) return;
+
+  setLocation(prev => {
+    if (!prev || !Array.isArray(prev.subStores)) return prev;
+
+    return {
+      ...prev,
+      subStores: prev.subStores.map(s => {
+        if (!s || !s._id) return s;
+        return s._id === updatedSubStore._id ? updatedSubStore : s;
+      }),
+    };
+  });
+
+  setSelectedSubStore(prev =>
+    prev && prev._id === updatedSubStore._id ? updatedSubStore : prev
+  );
+};
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -209,7 +246,7 @@ useEffect(() => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
-        <ClipLoader color="#0f41ccff" loading={loading} size={50} />
+        <PulseLoader color="#3b82f6" loading={loading} size={15} />
       </div>
     );
   }
@@ -231,24 +268,33 @@ useEffect(() => {
         </Link>
       </div>
 
-      {/* Location Info */}
       {/* Location Info Header */}
 <div className="bg-white dark:bg-slate-900 shadow-md rounded-2xl px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
   
   {/* Left: Store Name & Address */}
   <div className="flex flex-col">
-    <h1 className="text-3xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-      {location.storeName}
-      <span className="text-sm px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full font-medium">
-        {location.subStores.length} Sub-stores
-      </span>
-    </h1>
+  {/* Store name with icon */}
+  <h1 className="text-3xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+   <div className="
+           h-14 w-14 rounded-2xl
+           bg-gray-100 dark:bg-slate-800
+           flex items-center justify-center
+         ">
+           <Store className="h-7 w-7 text-slate-700 dark:text-yellow-600" />
+         </div>
+    {location.storeName}
+    <span className="text-sm px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-full font-medium">
+      {location.subStores.length} Sub-stores
+    </span>
+  </h1>
 
-    <div className="flex items-center gap-2 mt-2 text-gray-600 dark:text-gray-300 text-sm">
-      <MapPin className="h-4 w-4" />
-      <span>{location.address}</span>
-    </div>
+  {/* Address line */}
+  <div className="flex items-center gap-2 mt-2 text-gray-600 dark:text-gray-300 text-sm">
+    <MapPin className="h-4 w-4" />
+    <span>{location.address}</span>
   </div>
+</div>
+
 
   {/* Right: Actions */}
   <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-2">
@@ -279,8 +325,10 @@ useEffect(() => {
     <SubStoreAccordion
   key={subStore._id}
   subStore={subStore}
+  onDelete={handleDeleteSubStoreUI}
   onRequestSensor={() => handleRequestSensor(subStore)}
   onEdit={() => handleEditSubStore(subStore)}
+   onUpdate={handleSubStoreUpdated}
   isAdmin={isAdmin}
   navigateToSubStore={true}
   onClick={() => navigate(`/dashboard/locations/${storeId}/substores/${subStore._id}`)}
@@ -321,6 +369,9 @@ const updated = await getStoreById(storeId!);
 
             setSubStoreForm({
               name: '',
+
+
+
               location: '',
               notificationStatus: false,
               phoneNumbersLevel1: '',
@@ -341,7 +392,7 @@ const updated = await getStoreById(storeId!);
       />
 
       {/* Request Sensor Modal */}
-      <Modal isOpen={isRequestSensorOpen} onClose={() => setIsRequestSensorOpen(false)} title="Request New Equipment" size="lg">
+      <Modal isOpen={isRequestSensorOpen} onClose={() => setIsRequestSensorOpen(false)} title="Request New Sensor" size="md">
         <form className="space-y-6" onSubmit={handleSubmit}>
 
           <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md border border-blue-100 dark:border-blue-900/30 mb-4 text-sm text-blue-800 dark:text-blue-100">
@@ -355,7 +406,7 @@ const updated = await getStoreById(storeId!);
     Select Equipment Needed
   </label>
 
-  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
     {/* Temp Probe Card */}
     <div
@@ -429,71 +480,6 @@ const updated = await getStoreById(storeId!);
       )}
     </div>
 
-    {/* IoT Gateway Card */}
-    {/* <div
-      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-        selectedTypes.gateway > 0
-          ? 'ring-2 ring-primary border-primary bg-blue-50 dark:bg-blue-900/20 dark:border-primary'
-          : 'border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 bg-white dark:bg-slate-800'
-      }`}
-      onClick={() => handleTypeSelect('gateway')}
-    >
-      <div className="flex justify-between items-start mb-2">
-        <Wifi
-          className={`h-6 w-6 ${
-            selectedTypes.gateway > 0 ? 'text-primary' : 'text-gray-400 dark:text-gray-500'
-          }`}
-        />
-        {selectedTypes.gateway > 0 && <CheckCircle2 className="h-5 w-5 text-primary" />}
-      </div>
-      <p className="font-bold text-gray-900 dark:text-white">IoT Gateway</p>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Hub for sensor connectivity.</p>
-
-      {selectedTypes.gateway > 0 && (
-        <div
-          className="flex items-center justify-between bg-white dark:bg-slate-700 rounded border border-gray-200 dark:border-slate-600 px-2 py-1"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button type="button" onClick={() => decrementType('gateway')} className="px-2 text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white font-bold">
-            -
-          </button>
-          <span className="font-mono text-gray-900 dark:text-white">{selectedTypes.gateway}</span>
-          <button type="button" onClick={() => incrementType('gateway')} className="px-2 text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white font-bold">
-            +
-          </button>
-        </div>
-      )}
-    </div> */}
-
-    {/* Other Sensor Card */}
-    {/* <div
-      className={`border rounded-lg p-4 cursor-pointer transition-all ${
-        selectedTypes.other
-          ? 'ring-2 ring-primary border-primary bg-blue-50 dark:bg-blue-900/20 dark:border-primary'
-          : 'border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 bg-white dark:bg-slate-800'
-      }`}
-      onClick={() => handleTypeSelect('other')}
-    >
-      <div className="flex justify-between items-start mb-2">
-        <Plus
-          className={`h-6 w-6 ${
-            selectedTypes.other ? 'text-primary' : 'text-gray-400 dark:text-gray-500'
-          }`}
-        />
-        {selectedTypes.other && <CheckCircle2 className="h-5 w-5 text-primary" />}
-      </div>
-      <p className="font-bold text-gray-900 dark:text-white">Other Sensor</p>
-      {selectedTypes.other && (
-        <input
-          type="text"
-          value={otherSensorName}
-          onChange={(e) => setOtherSensorName(e.target.value)}
-          placeholder="Type sensor name..."
-          className="mt-2 block w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary sm:text-sm"
-          onClick={(e) => e.stopPropagation()}
-        />
-      )}
-    </div> */}
 
   </div>
 </div>

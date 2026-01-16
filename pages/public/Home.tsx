@@ -91,19 +91,14 @@ const Home: React.FC = () => {
       arrows: true,
       pauseOnHover: true,
       responsive: [
-        {
-          breakpoint: 1024,
-          settings: {
-            slidesToShow: 2,
-          }
-        },
-        {
-          breakpoint: 640,
-          settings: {
-            slidesToShow: 1,
-          }
-        }
-      ]
+    {
+      breakpoint: 768, 
+      settings: {
+        slidesToShow: 1, 
+        slidesToScroll: 1,
+      },
+    },
+  ],
     };
  
 
@@ -149,7 +144,7 @@ const Home: React.FC = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left Content */}
-            <div className="text-center lg:text-left">
+            <div className="text-center lg:text-left lg:pt-24 pt-12">
               <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
                 <Snowflake className="w-4 h-4 text-cyan-400 mr-2" />
                 <span className="text-sm text-cyan-100 font-medium">Trusted by 500+ businesses</span>
@@ -199,7 +194,7 @@ const Home: React.FC = () => {
             </div>
 
             {/* Right Content - Feature Card */}
-            <div className="hidden lg:block relative">
+            <div className="hidden lg:block relative lg:pt-24 pt-12">
               <div className="relative">
                 {/* Main Card */}
                 <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
@@ -304,35 +299,39 @@ const Home: React.FC = () => {
       </section>
       <WorkSection/>
       <AnalyticsSection/>
-      <div className="bg-black py-16 pb-40 px-6 sm:px-10 lg:px-72">
-  <div className="w-full bg-black py-10 px-4 lg:px-10">
-    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white text-center mb-6">
+     <div className="bg-black py-12 sm:py-16 pb-24 sm:pb-40 px-12 sm:px-10 lg:px-72">
+  <div className="w-full bg-black py-8 sm:py-10 px-2 sm:px-4 lg:px-10">
+    <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white text-center mb-4 sm:mb-6">
       What Our Clients Say
     </h2>
 
-    <p className="text-gray-300 text-center mb-6 max-w-xl mx-auto px-2 sm:px-0">
+    <p className="text-gray-300 text-center mb-4 sm:mb-6 max-w-md sm:max-w-xl mx-auto px-2 sm:px-0 text-sm sm:text-base">
       Hear directly from our satisfied clients and see why they trust us for their solutions.
     </p>
   </div>
 
   <Slider {...settings}>
     {testimonials.map((t, i) => (
-      <div key={i} className="px-2 sm:px-3">
-        <div className="bg-[#0c0d25]/70 shadow-lg rounded-xl p-6 text-center">
+      <div key={i} className="px-1 sm:px-3">
+        <div className="bg-[#0c0d25]/70 shadow-lg rounded-xl p-4 sm:p-6 text-center">
           <img
             src={t.image}
-            className="w-20 h-20 rounded-full mx-auto mb-4"
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4"
             alt={t.name}
           />
-          <h3 className="text-white font-semibold mb-2">{t.name}</h3>
-          <p className="text-gray-300 text-sm">{t.text}</p>
+          <h3 className="text-white font-semibold mb-1 sm:mb-2 text-sm sm:text-base">{t.name}</h3>
+          <p className="text-gray-300 text-xs sm:text-sm">{t.text}</p>
         </div>
       </div>
     ))}
   </Slider>
 </div>
 
-      <GetStartedSection/>
+
+      <section id="contact">
+  <GetStartedSection/>
+</section>
+
         
     </div>
   );

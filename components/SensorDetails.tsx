@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
-import { Thermometer, MapPin, ArrowLeft, Edit2, X } from "lucide-react"; 
+import { Thermometer, MapPin, ArrowLeft, Edit2, X, Layers } from "lucide-react";
 import TemperatureChart from "../components/dashboard/TemperatureChart";
 import { getSensorById, updateSensorById } from "../Api/Sensors/AddSensor";
 import { FiActivity, FiAlertCircle, FiThermometer } from "react-icons/fi";
 import { toast } from 'react-toastify';
-import ClipLoader from "react-spinners/ClipLoader";
+import PulseLoader from "react-spinners/PulseLoader";
+
 
 
 const SensorDetails: React.FC = () => {
@@ -16,9 +17,9 @@ const SensorDetails: React.FC = () => {
   const [sensor, setSensor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
- const [pageTitle, setPageTitle] = useState("");
- const [sensorName, setSensorName] = useState("");
-const [deviceName, setDeviceName] = useState("");
+  const [pageTitle, setPageTitle] = useState("");
+  const [sensorName, setSensorName] = useState("");
+  const [deviceName, setDeviceName] = useState("");
 
 
 
@@ -30,105 +31,110 @@ const [deviceName, setDeviceName] = useState("");
   const [deviceIp, setDeviceIp] = useState<string>("");
 
 
-useEffect(() => {
-  if (sensorId) {
-    getSensorById(sensorId)
-      .then((res) => {
-        if (res.success && res.sensor) {
-          setSensor(res.sensor);
+  useEffect(() => {
+    if (sensorId) {
+      getSensorById(sensorId)
+        .then((res) => {
+          if (res.success && res.sensor) {
+            setSensor(res.sensor);
 
-          setSensorName(res.sensor.sensorName || "");
-          setDeviceName(res.sensor.deviceName || "");
-          setDeviceIp(res.sensor.deviceIp || ""); 
-          setMinTempF(res.sensor.minTempF || 0);
-          setMaxTempF(res.sensor.maxTempF || 0);
-          setNotificationOn(res.sensor.notificationStatus === "on");
-        }
-      })
-      .finally(() => setLoading(false));
-  }
-}, [sensorId]);
+            setSensorName(res.sensor.sensorName || "");
+            setDeviceName(res.sensor.deviceName || "");
+            setDeviceIp(res.sensor.deviceIp || "");
+            setMinTempF(res.sensor.minTempF || 0);
+            setMaxTempF(res.sensor.maxTempF || 0);
+            setNotificationOn(res.sensor.notificationStatus === "on");
+          }
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [sensorId]);
 
 
-const validRecords =
+  const validRecords =
   sensor?.temperatureRecords?.filter(
-    (r: any) => r.temperatureC !== null && r.temperatureC !== undefined
+    (r: any) => r.currentTempC !== null && r.currentTempC !== undefined
   ) || [];
 
-  const chartData = validRecords.map((r: any) =>
-  Number(r.temperatureC.toFixed(2))
+
+ const chartData = validRecords.map((r: any) =>
+  Number(r.currentTempC.toFixed(2))
 );
-const minTemp =
-  chartData.length > 0 ? Math.floor(Math.min(...chartData)) - 1 : 0;
 
-const maxTemp =
-  chartData.length > 0 ? Math.ceil(Math.max(...chartData)) + 1 : 10;
+  const minTemp =
+    chartData.length > 0 ? Math.floor(Math.min(...chartData)) - 1 : 0;
 
+  const maxTemp =
+    chartData.length > 0 ? Math.ceil(Math.max(...chartData)) + 1 : 10;
 
-useEffect(() => {
-  if (sensor?.sensorName) {
-    setPageTitle(sensor.sensorName);
-    sessionStorage.setItem('pageTitle', sensor.sensorName);
-  }
-}, [sensor]);
-
-
-
-
- const avgTemp =
+const avgTemp =
   validRecords.length > 0
     ? validRecords.reduce(
-        (sum: number, r: any) => sum + r.temperatureC,
+        (sum: number, r: any) => sum + r.currentTempC,
         0
       ) / validRecords.length
     : 0;
 
 
- const handleUpdate = async () => {
-  if (!sensorId || !sensor) return;
-
-  try {
-    const res = await updateSensorById(sensorId, {
-  sensorName,
-  deviceName,
-  minTempF,
-  maxTempF,
-  notificationOn,
-}, sensor); 
 
 
-    if (res.success) {
-      setSensor(res.sensor);
-      setEditModalOpen(false);
-       toast.success("Sensor updated successfully!");
-    } else {
-      toast.error(res.message || "Failed to update sensor");
+  useEffect(() => {
+    if (sensor?.sensorName) {
+      setPageTitle(sensor.sensorName);
+      sessionStorage.setItem('pageTitle', sensor.sensorName);
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update sensor");
+  }, [sensor]);
+
+
+
+
+
+
+  const handleUpdate = async () => {
+    if (!sensorId || !sensor) return;
+
+    try {
+      const res = await updateSensorById(sensorId, {
+        sensorName,
+        deviceName,
+        minTempF,
+        maxTempF,
+        notificationOn,
+      }, sensor);
+
+
+      if (res.success) {
+        setSensor(res.sensor);
+        setEditModalOpen(false);
+        toast.success("Sensor updated successfully!");
+      } else {
+        toast.error(res.message || "Failed to update sensor");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update sensor");
+    }
+  };
+
+
+
+
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <PulseLoader color="#3b82f6" size={15} />
+      </div>
+    );
   }
-};
 
-
-
-
-
- if (loading) {
-  return (
-    <div className="flex justify-center items-center min-h-screen">
-      <ClipLoader color="#3B82F6" size={60} />
-    </div>
-  );
-}
-
-if (!sensor) {
-  return (
-    <p className="text-center mt-10 text-gray-800 dark:text-white">
-      Sensor not found
-    </p>
-  );
-}
+  if (!sensor) {
+    return (
+      <p className="text-center mt-10 text-gray-800 dark:text-white">
+        Sensor not found
+      </p>
+    );
+  }
 
 
   return (
@@ -142,42 +148,50 @@ if (!sensor) {
         Back to My Stores
       </Link>
 
-   
+
       {/* Sensor Info Header */}
-<div className="bg-white dark:bg-slate-800 shadow-md rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 transition-colors">
-  {/* Left: Substore Name and Sensor Name */}
-  <div className="flex flex-col">
-    {/* Substore Name */}
-    <h1 className="text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white">
-      {sensor.subStoreId?.name || "Substore Name"}
-    </h1>
-
-    {/* Sensor Name */}
-    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-      {sensor.sensorName || "Sensor Name"}
-    </p>
-
-    {/* Address */}
-    <div className="flex items-center gap-2 mt-2 text-gray-600 dark:text-gray-300 text-sm">
-      <MapPin className="h-4 w-4" />
-      <span>{sensor.storeId?.address || "Address not available"}</span>
-    </div>
-  </div>
-
-  {/* Right: Current Temp & Status */}
-  <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 mt-4 md:mt-0">
-    <div className="flex flex-col items-center bg-gray-100 dark:bg-slate-700 px-4 py-2 rounded-xl border border-blue-300">
-      <p className="text-sm text-gray-500 dark:text-gray-400">Current Temp</p>
-      <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
-        {sensor.currentTempF?.toFixed(1) || avgTemp.toFixed(1)}°F
-      </p>
+      <div className="bg-white dark:bg-slate-800 shadow-md rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 transition-colors">
+      <div className="flex flex-col">
+      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+      <div className="
+        h-14 w-14 rounded-2xl
+        bg-gray-100 dark:bg-slate-700
+        flex items-center justify-center
+      ">
+        <Layers className="h-6 w-6 text-gray-700 dark:text-blue-600" />
+      </div>
+      <span className="text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white">
+        {sensor.subStoreId?.name || "N/A"}
+      </span>
     </div>
 
-    <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 font-medium">
-      {sensor.status === "on" ? "Active" : "Inactive"}
-    </span>
-  </div>
+    {/* Sensor Name with Icon */}
+    <div className="flex items-center gap-">
+      <Thermometer className="h-5 w-5 text-green-500 dark:text-green-500" />
+      <span className="text-base text-gray-500 dark:text-gray-400">
+        {sensor.sensorName || "Sensor Name"}
+      </span>
+    </div>
+  </div> 
 </div>
+
+
+
+        {/* Right: Current Temp & Status */}
+        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 mt-4 md:mt-0">
+          <div className="flex flex-col items-center bg-gray-100 dark:bg-slate-700 px-4 py-2 rounded-xl border border-blue-300">
+            <p className="text-sm text-gray-500 dark:text-gray-400">Current Temp</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+              {sensor.currentTempF?.toFixed(1) || avgTemp.toFixed(1)}°F
+            </p>
+          </div>
+
+          <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 font-medium">
+            {sensor.status === "on" ? "Active" : "Inactive"}
+          </span>
+        </div>
+      </div>
 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -205,15 +219,15 @@ if (!sensor) {
             </span>
 
             {/* Edit Icon */}
-          {!isAdmin && (
-  <div 
-    className="absolute right-0 top-[90px] border p-2 rounded hover:border-blue-500 border-gray-300 dark:border-gray-600 flex items-center gap-1 cursor-pointer text-gray-600 hover:text-blue-500"
-    onClick={() => setEditModalOpen(true)}
-  >
-    <Edit2 className="w-5 h-5" />
-    <span className="text-sm font-medium">Edit Temp</span>
-  </div>
-)}
+            {!isAdmin && (
+              <div
+                className="absolute right-0 top-[90px] border p-2 rounded hover:border-blue-500 border-gray-300 dark:border-gray-600 flex items-center gap-1 cursor-pointer text-gray-600 hover:text-blue-500"
+                onClick={() => setEditModalOpen(true)}
+              >
+                <Edit2 className="w-5 h-5" />
+                <span className="text-sm font-medium">Edit Temp</span>
+              </div>
+            )}
 
 
 
@@ -243,37 +257,49 @@ if (!sensor) {
             </div>
           </div>
           <div className="flex items-center justify-between mt-4">
-  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Notification Alerts</span>
-  
-  {/* View-only toggle */}
-  <div
-    className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
-      sensor.notificationStatus === "on" ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"
-    }`}
-  >
-    <span
-      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${
-        sensor.notificationStatus === "on" ? "translate-x-6" : "translate-x-0"
-      }`}
-    />
-  </div>
-</div>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Notification Alerts</span>
+
+            {/* View-only toggle */}
+            <div
+              className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${sensor.notificationStatus === "on" ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"
+                }`}
+            >
+              <span
+                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${sensor.notificationStatus === "on" ? "translate-x-6" : "translate-x-0"
+                  }`}
+              />
+            </div>
+          </div>
         </div>
 
         {/* RIGHT SIDE – Temperature Chart */}
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold mb-4">Temperature Records</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-bold mb-2 text-xl text-green-500">
+              <Thermometer className="h-5 w-5 mr-2 inline" />
+              {sensor.sensorName} - <span className='dark:text-gray-200 text-black'>{sensor.avgTempHours}h Temperature Data</span>
+            </h4>
+
+
+            <p></p>
+            <div className="flex gap-2">
+              <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
+                Last {sensor.avgTempHours}h
+              </span>
+
+            </div>
+          </div>
           <TemperatureChart
-  data={chartData}
-  labels={validRecords.map((r: any) =>
-    new Date(r.recordedAt).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  )}
-  minTemp={minTemp}
-  maxTemp={maxTemp}
-/>
+            data={chartData}
+            labels={validRecords.map((r: any) =>
+              new Date(r.recordedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            )}
+            minTemp={minTemp}
+            maxTemp={maxTemp}
+          />
 
         </div>
       </div>
@@ -281,76 +307,76 @@ if (!sensor) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
-  {/* Smart Insights */}
-  <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg space-y-4">
-    <div className="flex items-center gap-2 mb-3">
-      <FiActivity className="text-xl text-blue-600 dark:text-blue-400" />
-      <h3 className="text-lg font-semibold">Smart Insights</h3>
-    </div>
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 bg-red-100 dark:bg-red-900/30 p-3 rounded-lg">
-        <span className="text-red-600">❗</span>
-        <p className="text-sm text-gray-700 dark:text-gray-200">
-          1 sensor exceeded maximum temperature threshold.
-        </p>
-      </div>
-      <div className="flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
-        <span className="text-yellow-600">⚠️</span>
-        <p className="text-sm text-gray-700 dark:text-gray-200">
-          1 sensor is currently offline.
-        </p>
-      </div>
-    </div>
-  </div>
+        {/* Smart Insights */}
+        <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <FiActivity className="text-xl text-blue-600 dark:text-blue-400" />
+            <h3 className="text-lg font-semibold">Smart Insights</h3>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 bg-red-100 dark:bg-red-900/30 p-3 rounded-lg">
+              <span className="text-red-600">❗</span>
+              <p className="text-sm text-gray-700 dark:text-gray-200">
+                1 sensor exceeded maximum temperature threshold.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
+              <span className="text-yellow-600">⚠️</span>
+              <p className="text-sm text-gray-700 dark:text-gray-200">
+                1 sensor is currently offline.
+              </p>
+            </div>
+          </div>
+        </div>
 
-  {/* Recent Alerts */}
-  <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
-    <div className="flex items-center gap-2 mb-3">
-      <FiAlertCircle className="text-xl text-red-600 dark:text-red-400" />
-      <h3 className="text-lg font-semibold">Recent Alerts</h3>
-    </div>
-    <div className="flex items-center justify-between bg-gray-100 dark:bg-slate-700 p-3 rounded-lg">
-      <div className="flex items-center gap-2">
-        <span className="w-3 h-3 rounded-full bg-red-500 block"></span>
-        <div>
-          <p className="text-sm font-medium text-gray-800 dark:text-gray-200">Lab Refrigerator</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">22.1°C • High temp</p>
+        {/* Recent Alerts */}
+        <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <FiAlertCircle className="text-xl text-red-600 dark:text-red-400" />
+            <h3 className="text-lg font-semibold">Recent Alerts</h3>
+          </div>
+          <div className="flex items-center justify-between bg-gray-100 dark:bg-slate-700 p-3 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-red-500 block"></span>
+              <div>
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-200">Lab Refrigerator</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">22.1°C • High temp</p>
+              </div>
+            </div>
+            <span className="text-xs text-gray-400 dark:text-gray-500">Dec 31, 16:07</span>
+          </div>
+        </div>
+
+        {/* Temperature Summary */}
+        <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+          <h3 className="text-lg font-semibold mb-3">Temperature Summary (Last 7 Days)</h3>
+
+          <div className="lg:col-span-1 grid grid-cols-3 gap-4">
+
+            {/* Lowest */}
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-xl text-center">
+              <FiThermometer className="mx-auto text-blue-600 dark:text-blue-400 text-2xl mb-1" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">Lowest Recorded</p>
+              <p className="text-xl font-semibold text-blue-600 dark:text-blue-400 mt-1">17.4°C</p>
+            </div>
+
+
+            {/* Average */}
+            <div className="bg-gray-100 dark:bg-slate-700 p-4 rounded-xl text-center">
+              <FiThermometer className="mx-auto text-gray-600 dark:text-gray-300 text-2xl mb-1" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">Average Temperature</p>
+              <p className="text-xl font-semibold mt-1">21.8°C</p>
+            </div>
+
+            {/* Highest */}
+            <div className="bg-orange-100 dark:bg-orange-900/30 p-4 rounded-xl text-center">
+              <FiThermometer className="mx-auto text-orange-600 dark:text-orange-400 text-2xl mb-1" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">Highest Recorded</p>
+              <p className="text-xl font-semibold text-orange-600 dark:text-orange-400 mt-1">27.0°C</p>
+            </div>
+          </div>
         </div>
       </div>
-      <span className="text-xs text-gray-400 dark:text-gray-500">Dec 31, 16:07</span>
-    </div>
-  </div>
-
-  {/* Temperature Summary */}
-  <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
-    <h3 className="text-lg font-semibold mb-3">Temperature Summary (Last 7 Days)</h3>
-  
-  <div className="lg:col-span-1 grid grid-cols-3 gap-4">
-    
-    {/* Lowest */}
-    <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-xl text-center">
-      <FiThermometer className="mx-auto text-blue-600 dark:text-blue-400 text-2xl mb-1" />
-      <p className="text-sm text-gray-500 dark:text-gray-400">Lowest Recorded</p>
-      <p className="text-xl font-semibold text-blue-600 dark:text-blue-400 mt-1">17.4°C</p>
-    </div>
-
-
-    {/* Average */}
-    <div className="bg-gray-100 dark:bg-slate-700 p-4 rounded-xl text-center">
-      <FiThermometer className="mx-auto text-gray-600 dark:text-gray-300 text-2xl mb-1" />
-      <p className="text-sm text-gray-500 dark:text-gray-400">Average Temperature</p>
-      <p className="text-xl font-semibold mt-1">21.8°C</p>
-    </div>
-
-    {/* Highest */}
-    <div className="bg-orange-100 dark:bg-orange-900/30 p-4 rounded-xl text-center">
-      <FiThermometer className="mx-auto text-orange-600 dark:text-orange-400 text-2xl mb-1" />
-      <p className="text-sm text-gray-500 dark:text-gray-400">Highest Recorded</p>
-      <p className="text-xl font-semibold text-orange-600 dark:text-orange-400 mt-1">27.0°C</p>
-    </div>
-  </div>
-</div>
-</div>
 
       {/* Edit Modal */}
       {editModalOpen && (
@@ -363,24 +389,24 @@ if (!sensor) {
             />
 
             <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">Edit Sensor</h3>
-<div className="flex flex-col">
-  <label className="text-sm">Sensor Name</label>
-  <input
-    type="text"
-    value={sensorName}
-    onChange={(e) => setSensorName(e.target.value)}
-    className="mt-1 p-2 rounded border dark:bg-slate-700"
-  />
-</div>
-<div className="flex flex-col">
-  <label className="text-sm">Device Name</label>
-  <input
-    type="text"
-    value={deviceName}
-    onChange={(e) => setDeviceName(e.target.value)}
-    className="mt-1 p-2 rounded border dark:bg-slate-700"
-  />
-</div>
+            <div className="flex flex-col">
+              <label className="text-sm">Sensor Name</label>
+              <input
+                type="text"
+                value={sensorName}
+                onChange={(e) => setSensorName(e.target.value)}
+                className="mt-1 p-2 rounded border dark:bg-slate-700"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="text-sm">Device Name</label>
+              <input
+                type="text"
+                value={deviceName}
+                onChange={(e) => setDeviceName(e.target.value)}
+                className="mt-1 p-2 rounded border dark:bg-slate-700"
+              />
+            </div>
 
 
             {/* Min Temp */}
@@ -409,15 +435,13 @@ if (!sensor) {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Notification Alerts</span>
               <button
-                className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${
-                  notificationOn ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"
-                }`}
+                className={`relative w-12 h-6 rounded-full transition-colors duration-300 ${notificationOn ? "bg-green-500" : "bg-gray-300 dark:bg-gray-600"
+                  }`}
                 onClick={() => setNotificationOn(!notificationOn)}
               >
                 <span
-                  className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${
-                    notificationOn ? "translate-x-6" : "translate-x-0"
-                  }`}
+                  className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 ${notificationOn ? "translate-x-6" : "translate-x-0"
+                    }`}
                 />
               </button>
             </div>

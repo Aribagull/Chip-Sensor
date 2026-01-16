@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Clock, Calendar, Truck, AlertCircle, Trash2 } from 'lucide-react';
+import { CheckCircle, Clock, Calendar, Truck, AlertCircle, Trash2, Store, Thermometer, Layers } from 'lucide-react';
 import Card from '../../../components/ui/Card';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
@@ -7,8 +7,9 @@ import Input from '../../../components/ui/Input';
 import Checkbox from '../../../components/ui/Checkbox';
 import { ServiceRequest, RequestStatus, ServiceRequestData } from '../../../types';
 import { getAllRequests, deleteAdminSensorRequest, updateAdminSensorRequestStatus } from '../../../Api/Sensors/sensorrequests';
-import ClipLoader from "react-spinners/ClipLoader";
+import PulseLoader from "react-spinners/PulseLoader";
 import { toast } from 'react-toastify';
+
 
 
 const requestStatuses: { status: RequestStatus; label: string; icon: any }[] = [
@@ -116,7 +117,7 @@ const SensorRequests: React.FC = () => {
         <div className="p-6 bg-gray-50 dark:bg-slate-900 min-h-[500px] space-y-4">
           {loading ? (
             <div className="flex justify-center items-center min-h-[300px]">
-              <ClipLoader color="#0f41ccff" size={50} />
+              <PulseLoader color="#3b82f6" size={15} />
             </div>
           ) : filteredRequests.length === 0 ? (
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">
@@ -154,15 +155,17 @@ const SensorRequests: React.FC = () => {
                         <h3 className="text-base text-gray-700 dark:text-gray-300">Email: {req.customerId?.email || "N/A"}</h3>
                         <h3 className="text-base text-gray-700 dark:text-gray-300">Phone: {req.customerId?.phone || "N/A"}</h3>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
-                        {req.storeId?.storeName || "Unknown Store"} → {req.subStoreId?.name || "N/A"}
-                      </p>
+                      <div className="flex items-center text-gray-900 dark:text-white font-bold text-lg mb-1">
+                    <Store className="h-6 w-6 mr-2 text-yellow-600" />
+                    {req.storeId?.storeName || 'N/A'} <span className="text-gray-400 mx-2 flex gap-2">→ <Layers className="h-6 w-6 mr-2 text-yellow-600" /></span>{req.subStoreId?.name || 'N/A'}
+                  </div>
+
                     </div>
 
                     <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-900/30">
                       <p className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase mb-1">Requested Items</p>
                       <ul className="list-disc list-inside text-sm text-blue-900 dark:text-blue-100">
-                        <li>{req.sensorType} Sensor</li>
+                        <li className='flex items-center'><Thermometer className="h-5 w-5 mr-2 text-green-600" />{req.sensorType} Sensor</li>
                         <li>Quantity: {req.requestedSensors}</li>
                         <li>Description: {req.description}</li>
                       </ul>

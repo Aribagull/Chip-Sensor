@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertTriangle, Thermometer, DoorOpen, Settings, Info, Zap, Box, Phone, Mail, Activity, Edit, Trash2, Eye} from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertTriangle, Thermometer, DoorOpen, Settings, Info, Zap, Box, Phone, Mail, Activity, Edit, Trash2, Eye } from 'lucide-react';
 import { SubStore } from '../../types';
 import Button from '../ui/Button';
 import Toggle from '../ui/Toggle';
@@ -9,21 +9,29 @@ import { updateSubStore, deleteSubStore } from "../../Api/Stores/subStore";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { FiPhone, FiMail } from "react-icons/fi";
+import Modal from '../ui/Modal';
 
 
 interface SubStoreAccordionProps {
-  subStore: SubStore;
-  onRequestSensor: (subStoreName: string) => void;
-  onClick?: () => void;
-  isSelected?: boolean;
+   subStore: SubStore;
+   onRequestSensor: () => void;
+   onEdit: () => void;
+   onUpdate: (updatedSubStore: SubStore) => void;
+   isAdmin?: boolean;
+   navigateToSubStore?: boolean;
+   isSelected?: boolean;
+   onDelete: (id: string) => void;
 }
 
 
-const SubStoreAccordion: React.FC<SubStoreAccordionProps> = ({ subStore, onRequestSensor, isAdmin = false }) => {
+const SubStoreAccordion: React.FC<SubStoreAccordionProps> = ({ subStore, onRequestSensor, onEdit, onUpdate, onDelete, isAdmin = false }) => {
    const navigate = useNavigate();
    const [isExpanded, setIsExpanded] = useState(false);
    const [isEditOpen, setIsEditOpen] = useState(false);
    const [requestSubmitted, setRequestSubmitted] = useState(false);
+   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+   const [isDeleting, setIsDeleting] = useState(false);
+
    const hasSensors = subStore.sensors && subStore.sensors.length > 0;
 
    const [editForm, setEditForm] = useState({
@@ -48,7 +56,7 @@ const SubStoreAccordion: React.FC<SubStoreAccordionProps> = ({ subStore, onReque
    };
 
 
-const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null);
+   const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null);
    const notificationEnabled = subStore.notification_status === 'on';
 
    const Toggle = ({ enabled }: { enabled: boolean }) => (
@@ -63,23 +71,22 @@ const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null
       </div>
    );
 
-   const handleDeleteSubStore = async (e: React.MouseEvent) => {
-      e.stopPropagation();
-      const confirmDelete = window.confirm(
-         "Are you sure you want to delete this Sub-Store?"
-      );
-
-      if (!confirmDelete) return;
-
+   const handleDeleteSubStore = async () => {
       try {
+         setIsDeleting(true);
          await deleteSubStore(subStore.storeId, subStore._id);
+
          toast.success("Sub-Store deleted successfully");
-         navigate(0);
+         onDelete(subStore._id);
+         setIsDeleteOpen(false);
       } catch (error) {
          console.error(error);
          toast.error("Failed to delete Sub-Store");
+      } finally {
+         setIsDeleting(false);
       }
    };
+
 
 
    const getStatusBg = (status: string) => {
@@ -157,19 +164,52 @@ const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null
                         <span>Edit Sub-Store</span>
                      </button>
                      <button
-                        onClick={handleDeleteSubStore}
+                        onClick={(e) => {
+                           e.stopPropagation();
+                           setIsDeleteOpen(true);
+                        }}
                         className='flex items-center gap-2
-      px-3 py-1.5
-      border border-red-300 dark:border-red-600
-      rounded-md
-      text-sm font-medium
-      text-red-600 dark:text-red-300
-      hover:bg-red-100  dark:hover:bg-red-800
-      transition'>
+                                     px-3 py-1.5
+                                     border border-red-300 dark:border-red-600
+                                     rounded-md
+                                     text-sm font-medium
+                                     text-red-600 dark:text-red-300
+                                     hover:bg-red-100  dark:hover:bg-red-800
+                                     transition'>
                         <Trash2 className="h-4 w-4" />
                         <span>Delete</span>
                      </button>
                   </div>
+
+                  <Modal
+                     isOpen={isDeleteOpen}
+                     onClose={() => setIsDeleteOpen(false)}
+                     title="Delete Sub-Store"
+                  >
+                     <div className="space-y-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                           Are you sure you want to delete this Sub-Store?
+                        </p>
+
+                        <div className="flex justify-end gap-3 pt-4">
+                           <Button
+                              variant="secondary"
+                              onClick={() => setIsDeleteOpen(false)}
+                              disabled={isDeleting}
+                           >
+                              Cancel
+                           </Button>
+
+                           <Button
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                              onClick={handleDeleteSubStore}
+                              loading={isDeleting}
+                           >
+                              Delete
+                           </Button>
+                        </div>
+                     </div>
+                  </Modal>
 
                </div>
                <div className={`p-2 rounded-full transition-colors ${isExpanded ? 'bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}`}>
@@ -257,140 +297,142 @@ const [selectedSensor, setSelectedSensor] = useState(subStore.sensors[0] || null
 
 
 
-                         {/* Left: Sensor List */}
-<div className="lg:col-span-1 space-y-3">
-  <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
-    Live Sensor Data
-  </h4>
+                           {/* Left: Sensor List */}
+                           <div className="lg:col-span-1 space-y-3">
+                              <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
+                                 Live Sensor Data
+                              </h4>
 
-  {subStore.sensors.map((sensor) => (
-    <div
-      key={sensor._id}
-      onClick={() => setSelectedSensor(sensor)} 
-      className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-gray-100 dark:border-slate-700 flex items-center justify-between shadow-sm"
-    >
-      <div className="flex items-center">
-        <div
-          className={`p-2 rounded-lg mr-3 ${
-            sensor.type === 'temp'
-              ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-              : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
-          }`}
-        >
-          {sensor.type === 'temp' ? (
-            <Thermometer className="h-4 w-4" />
-          ) : (
-            <DoorOpen className="h-4 w-4" />
-          )}
-        </div>
+                              {subStore.sensors.map((sensor) => (
+                                 <div
+                                    key={sensor._id}
+                                    onClick={() => setSelectedSensor(sensor)}
+                                    className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-gray-100 dark:border-slate-700 flex items-center justify-between shadow-sm"
+                                 >
+                                    <div className="flex items-center">
+                                       <div
+                                          className={`p-2 rounded-lg mr-3 ${sensor.type === 'temp'
+                                             ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                             : 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+                                             }`}
+                                       >
+                                          {sensor.type === 'temp' ? (
+                                             <Thermometer className="h-4 w-4" />
+                                          ) : (
+                                             <DoorOpen className="h-4 w-4" />
+                                          )}
+                                       </div>
 
-        <div>
-          <p className="text-sm font-bold text-gray-900 dark:text-white">
-            {sensor.sensorName}
-          </p>
+                                       <div>
+                                          <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                             {sensor.sensorName}
+                                          </p>
 
-          {/* Status with color circle */}
-          <div className="flex items-center gap-2 text-xs">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                sensor.status === 'on'
-                  ? 'bg-green-500'
-                  : 'bg-gray-400'
-              }`}
-            />
-            <span className="text-gray-500 dark:text-gray-400">
-              {sensor.status === 'on' ? 'Online' : 'Offline'}
-            </span>
-          </div>
-        </div>
-      </div>
+                                          {/* Status with color circle */}
+                                          <div className="flex items-center gap-2 text-xs">
+                                             <span
+                                                className={`h-2 w-2 rounded-full ${sensor.status === 'on'
+                                                   ? 'bg-green-500'
+                                                   : 'bg-gray-400'
+                                                   }`}
+                                             />
+                                             <span className="text-gray-500 dark:text-gray-400">
+                                                {sensor.status === 'on' ? 'Online' : 'Offline'}
+                                             </span>
+                                          </div>
+                                       </div>
+                                    </div>
 
-      <span className="font-mono font-bold text-gray-800 dark:text-gray-200">
-       {sensor.currentTempC !== null && sensor.currentTempC !== undefined
-  ? sensor.currentTempC.toFixed(1)
-  : '--'}°C
+                                    <span className="font-mono font-bold text-gray-800 dark:text-gray-200">
+                                       {sensor.currentTempC !== null && sensor.currentTempC !== undefined
+                                          ? sensor.currentTempC.toFixed(1)
+                                          : '--'}°C
 
-      </span>
-    </div>
-  ))}
-</div>
+                                    </span>
+                                 </div>
+                              ))}
+                           </div>
 
 
 
-     {/* Right: Chart */}
-<div className="lg:col-span-2 bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm">
-    {/* Sensor Details Link */}
-  {selectedSensor && (
-    <div className="mb-3 flex justify-end">
- <button
-  className="flex items-center gap-1 text-blue-600 dark:text-white text-sm font-medium dark:hover:text-blue-600 border border-gray-300 px-2 py-1 rounded hover:border-blue-600"
-  onClick={() => {
-    if (!selectedSensor || !selectedSensor._id) return;
+                           {/* Right: Chart */}
+                           <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm">
+                              {/* Sensor Details Link */}
+                              {selectedSensor && (
+                                 <div className="mb-3 flex justify-end">
+                                    <button
+                                       className="flex items-center gap-1 text-blue-600 dark:text-white text-sm font-medium dark:hover:text-blue-600 border border-gray-300 px-2 py-1 rounded hover:border-blue-600"
+                                       onClick={() => {
+                                          if (!selectedSensor || !selectedSensor._id) return;
 
-    navigate(
-      `/dashboard/sensors/sensor/${selectedSensor._id}`,
-      {
-        state: {
-          pageTitle: selectedSensor.sensorName,
-        },
-      }
-    );
-  }}
->
-  <Eye className="h-4 w-4" />
-  View Details
-</button>
-
-
-
-</div>
-
-  )}
-  <div className="flex items-center justify-between mb-4">
-<h4 className="font-bold mb-2">
-            {selectedSensor.sensorName} - 24h Temperature Data
-          </h4>
-          <div className="flex gap-2">
-      <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
-        Last 24h
-      </span>
-</div>
-  </div>
-
-  <div className="h-56">
-    {selectedSensor && selectedSensor.temperatureRecords && selectedSensor.temperatureRecords.length > 0 ? (
-  (() => {
-    // Filter out null temperature values
-    const filteredRecords = selectedSensor.temperatureRecords.filter(r => r.temperatureC !== null && r.temperatureC !== undefined);
-    const data = filteredRecords.map(r => r.temperatureC!); // Non-null assertion
-    const labels = filteredRecords.map(r =>
-      new Date(r.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    );
-   const minTemp =
-  Number((Math.floor(Math.min(...data)) - 1).toFixed(1));
-
-const maxTemp =
-  Number((Math.ceil(Math.max(...data)) + 1).toFixed(1));
+                                          navigate(
+                                             `/dashboard/sensors/sensor/${selectedSensor._id}`,
+                                             {
+                                                state: {
+                                                   pageTitle: selectedSensor.sensorName,
+                                                },
+                                             }
+                                          );
+                                       }}
+                                    >
+                                       <Eye className="h-4 w-4" />
+                                       View Details
+                                    </button>
 
 
-    return (
-      <TemperatureChart
-        data={data}
-        labels={labels}
-        minTemp={minTemp}
-        maxTemp={maxTemp}
-      />
-    );
-  })()
-) : (
-  <p className="text-sm text-gray-400 text-center">
-    No temperature data available
-  </p>
-)}
 
-  </div>
-  
-</div>
+                                 </div>
+
+                              )}
+                              <div className="flex items-center justify-between mb-4">
+                                 <h4 className="font-bold mb-2 text-green-500 text-xl ">
+                                    <Thermometer className="h-5 w-5 mr-2 inline text-green-500" />{selectedSensor.sensorName} - <span className='dark:text-gray-200 text-black'>{selectedSensor.avgTempHours}h Temperature Data</span>
+                                 </h4>
+                                 <p></p>
+                                 <div className="flex gap-2">
+                                    <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
+                                       Last {selectedSensor.avgTempHours}h
+                                    </span>
+                                 </div>
+                              </div>
+
+                              <div className="h-56">
+                                 {selectedSensor && selectedSensor.temperatureRecords && selectedSensor.temperatureRecords.length > 0 ? (
+                                    (() => {
+                                       const filteredRecords = selectedSensor.temperatureRecords.filter(
+                                          r => r.currentTempC !== null && r.currentTempC !== undefined
+                                       );
+
+                                       const data = filteredRecords.map(r => r.currentTempC);
+
+                                       const labels = filteredRecords.map(r =>
+                                          new Date(r.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                       );
+                                       const minTemp =
+                                          Number((Math.floor(Math.min(...data)) - 1).toFixed(1));
+
+                                       const maxTemp =
+                                          Number((Math.ceil(Math.max(...data)) + 1).toFixed(1));
+
+
+                                       return (
+                                          <TemperatureChart
+                                             data={data}
+                                             labels={labels}
+                                             minTemp={minTemp}
+                                             maxTemp={maxTemp}
+                                          />
+                                       );
+                                    })()
+                                 ) : (
+                                    <p className="text-sm text-gray-400 text-center">
+                                       No temperature data available
+                                    </p>
+                                 )}
+
+                              </div>
+
+                           </div>
 
 
 
@@ -518,10 +560,22 @@ const maxTemp =
                   };
                   delete payload.notificationStatus;
 
-                  await updateSubStore(subStore.storeId, subStore._id, payload);
+                  const res = await updateSubStore(subStore.storeId, subStore._id, payload);
+
+
+                  if (res?.data?._id) {
+                     onUpdate(res.data);
+                  } else {
+
+                     onUpdate({
+                        ...subStore,
+                        ...payload,
+                        notification_status: payload.notification_status,
+                     });
+                  }
 
                   setIsEditOpen(false);
-                  toast.success('Substore updated successfully');
+                  toast.success("Sub-store updated successfully");
                } catch (err) {
                   console.error(err);
                   toast.error('Update failed');

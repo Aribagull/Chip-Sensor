@@ -4,22 +4,24 @@ import { logoutUser } from "../../Api/authonticationUser";
 import { getUserProfile } from "../../Api/authonticationUser";
 import { getAllRequests } from '../../Api/Sensors/sensorrequests';
 import { toast } from 'react-toastify';
-import { 
-  LayoutDashboard, 
-  MapPin, 
-  Thermometer, 
-  History, 
-  FileText, 
-  Settings, 
-  Users, 
-  Bell, 
-  BarChart2, 
+import logo from '../../Assets/Logo/logo.png';
+import {
+  LayoutDashboard,
+  MapPin,
+  Thermometer,
+  History,
+  FileText,
+  Settings,
+  Users,
+  Bell,
+  BarChart2,
   LogOut,
   X,
   Snowflake,
   ChevronRight
 } from 'lucide-react';
 import { UserRole, NavItem } from '../../types';
+import { useUser } from "../../context/UserContext";
 
 interface SidebarProps {
   role: UserRole;
@@ -30,26 +32,24 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ role, isOpen, onClose }) => {
   const navigate = useNavigate();
-const [userProfile, setUserProfile] = useState<any>(null);
- const [requestCount, setRequestCount] = useState(0);
+  const [requestCount, setRequestCount] = useState(0);
+  const { user, setUser } = useUser();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await getUserProfile();
-        if (data.success) setUserProfile(data.user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchProfile();
-  }, []);
+useEffect(() => {
+  const fetchProfile = async () => {
+    const data = await getUserProfile();
+    if (data.success) setUser(data.user);
+  };
+  fetchProfile();
+}, []); 
+
+
 
   useEffect(() => {
     const fetchRequestsCount = async () => {
       try {
-        const data = await getAllRequests("pending"); 
-        setRequestCount(data.length); 
+        const data = await getAllRequests("pending");
+        setRequestCount(data.length);
       } catch (err) {
         console.error("Failed to fetch requests count:", err);
       }
@@ -61,6 +61,7 @@ const [userProfile, setUserProfile] = useState<any>(null);
   const handleLogout = async () => {
     try {
       await logoutUser();
+      setUser(null);
       navigate("/login");
     } catch (err: any) {
       console.error("Logout failed:", err.message);
@@ -88,7 +89,7 @@ const [userProfile, setUserProfile] = useState<any>(null);
   ];
 
   const links = role === 'admin' ? adminLinks : customerLinks;
-  
+
   // Modern gradient background
   const baseClasses = `fixed inset-y-0 left-0 z-40 w-72 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 bg-gradient-to-b from-slate-900 to-slate-950 text-white shadow-2xl border-r border-slate-800/50`;
   const mobileClasses = isOpen ? 'translate-x-0' : '-translate-x-full';
@@ -97,7 +98,7 @@ const [userProfile, setUserProfile] = useState<any>(null);
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 lg:hidden"
           onClick={onClose}
         />
@@ -108,17 +109,23 @@ const [userProfile, setUserProfile] = useState<any>(null);
         {/* Header */}
         <div className="flex items-center justify-between h-20 px-6 border-b border-white/5">
           <div className="flex items-center space-x-3">
-             <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-2 rounded-xl shadow-lg shadow-blue-500/20">
-                <Snowflake className="h-5 w-5 text-white" />
-             </div>
-              <div className="flex flex-col">
-            <span className="text-lg font-bold tracking-tight text-white leading-tight">
-              {userProfile?.name || (role === 'admin' ? 'Administrator' : 'Customer')}
-            </span>
-            <span className="text-[10px] text-slate-400 font-medium tracking-wider">
-              {userProfile?.email || (role === 'admin' ? 'Admin Workspace' : 'Client Access')}
-            </span>
-          </div>
+           
+             <img
+                 src={logo}
+                 alt="Logo"
+                 className="h-12 w-auto "
+               />
+            
+            <div className="flex flex-col">
+              <span className="text-lg font-bold tracking-tight text-white leading-tight">
+                {user?.name || (role === 'admin' ? 'Administrator' : 'Customer')}
+              </span>
+
+              <span className="text-[10px] text-slate-400 font-medium tracking-wider">
+                {user?.email || (role === 'admin' ? 'Admin Workspace' : 'Client Access')}
+              </span>
+
+            </div>
           </div>
           <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white transition-colors">
             <X className="h-5 w-5" />
@@ -135,12 +142,17 @@ const [userProfile, setUserProfile] = useState<any>(null);
               key={link.href}
               to={link.href}
               end={link.href.endsWith('dashboard')}
-              onClick={onClose}
+              onClick={() => {
+                onClose(); 
+                if (window.location.pathname === link.href) {
+                  window.dispatchEvent(new Event('refreshCustomers'));
+                }
+              }}
+              
               className={({ isActive }) =>
-                `group relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
-                  isActive
-                    ? 'bg-blue-600/10 text-blue-400 shadow-[0_0_20px_rgba(37,99,235,0.1)]'
-                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                `group relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${isActive
+                  ? 'bg-blue-600/10 text-blue-400 shadow-[0_0_20px_rgba(37,99,235,0.1)]'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
                 }`
               }
             >
@@ -149,9 +161,8 @@ const [userProfile, setUserProfile] = useState<any>(null);
                   {isActive && (
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-500 rounded-r-full" />
                   )}
-                  <link.icon className={`mr-3 h-5 w-5 transition-colors ${
-                      isActive ? 'text-blue-500' : 'text-slate-500 group-hover:text-slate-300'
-                  }`} />
+                  <link.icon className={`mr-3 h-5 w-5 transition-colors ${isActive ? 'text-blue-500' : 'text-slate-500 group-hover:text-slate-300'
+                    }`} />
                   <span className="flex-1 tracking-wide">{link.label}</span>
                   {link.badge && (
                     <span className="ml-auto bg-blue-600 text-white py-0.5 px-2 rounded-md text-[10px] font-bold shadow-sm min-w-[20px] text-center">

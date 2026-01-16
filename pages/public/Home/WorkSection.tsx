@@ -33,7 +33,7 @@ const WorkSection: React.FC = () => {
   };
 
   return (
-    <section className="bg-slate-900 relative">
+    <section className="bg-slate-900 relative hidden lg:block">
       <div className="text-center pt-20">
         <h2 className="text-4xl text-white font-bold mb-4">How It Works</h2>
         <p className="text-gray-400 max-w-3xl mx-auto">

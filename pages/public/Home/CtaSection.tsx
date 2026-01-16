@@ -1,7 +1,13 @@
 import React from "react";
 import { FiPhone } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+
 
 const GetStartedSection: React.FC = () => {
+  const navigate = useNavigate();
+  const handleGetStarted = () => {
+    navigate("/new-customer"); 
+  };
   return (
     <div className="w-full flex justify-center items-center py-20 bg-black">
       <div
@@ -34,7 +40,7 @@ const GetStartedSection: React.FC = () => {
 
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
-            <button className="px-8 py-4 bg-primary hover:shadow-[0_0_12px_#0575c5] text-white font-semibold rounded-full transition-all">
+            <button  onClick={handleGetStarted} className="px-8 py-4 bg-primary hover:shadow-[0_0_12px_#0575c5] text-white font-semibold rounded-full transition-all">
               Get Started Now
             </button>
             <button className="flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-white hover:bg-white hover:text-black text-white font-semibold rounded-full transition-all">

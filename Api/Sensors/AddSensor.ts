@@ -71,6 +71,18 @@ export const addAdminSensor = async (sensorData: any) => {
   }
 };
 
+// Fetch all devices and their sensors
+export const getDevices = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await api.get("/sensors/admin/getdevices", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data.devices || []; 
+  } catch (error: any) {
+    throw error;
+  }
+};
 
 // Get sensors for user
 export const getMySensors = async (subStoreId?: string) => {

@@ -119,10 +119,10 @@ const handleConfirmDelete = async () => {
       {/* Icon */}
       <div className="
         h-14 w-14 rounded-2xl
-        bg-gray-100 dark:bg-slate-800
+        bg-gray-100 dark:bg-slate-700
         flex items-center justify-center
       ">
-        <Store className="h-7 w-7 text-slate-700 dark:text-slate-300" />
+        <Store className="h-7 w-7 text-slate-700 dark:text-yellow-600" />
       </div>
 
       {/* Title & Address */}

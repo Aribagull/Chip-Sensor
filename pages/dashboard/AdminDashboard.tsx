@@ -86,12 +86,12 @@ const AdminDashboard: React.FC = () => {
   const sensorsOnline = overall?.activeSensors ?? 0;
   const pendingRequests = overall?.pendingRequests ?? 0;
   const alertsLast24h = overall?.alertsLast24h ?? 0;
-const totalAlerts = overall?.totalAlerts ?? 0;
-const totalEmailAlerts = overall?.totalEmailAlerts ?? 0;
-const totalSmsAlerts = overall?.totalSmsAlerts ?? 0;
-const totalRequests = overall?.totalRequests ?? 0;
-const inactiveSensors = overall?.inactiveSensors ?? 0;
-const activeSensors = overall?.activeSensors ?? 0;
+  const totalAlerts = overall?.totalAlerts ?? 0;
+  const totalEmailAlerts = overall?.totalEmailAlerts ?? 0;
+  const totalSmsAlerts = overall?.totalSmsAlerts ?? 0;
+  const totalRequests = overall?.totalRequests ?? 0;
+  const inactiveSensors = overall?.inactiveSensors ?? 0;
+  const activeSensors = overall?.activeSensors ?? 0;
 
 
   // last 30 days (example)
@@ -159,105 +159,111 @@ const activeSensors = overall?.activeSensors ?? 0;
       </div>
 
       {/* Stats Grid */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
 
-  {/* Customers */}
-  <StatCard
-    label="Customers"
-    value={totalCustomers}
-    icon={Users}
-    trend="Total customers"
-    trendUp={true}
-    color="blue"
-  />
+        {/* Customers */}
+        <StatCard
+          label="Customers"
+          value={totalCustomers}
+          icon={Users}
+          trend="Total customers"
+          trendUp={true}
+          color="blue"
+        />
 
-  {/* Locations */}
-  <StatCard
-    label="Locations"
-    value={totalLocations}
-    icon={MapPin}
-    trend="Total stores"
-    trendUp={true}
-    color="indigo"
-  />
+        {/* Locations */}
+        <StatCard
+          label="Locations"
+          value={totalLocations}
+          icon={MapPin}
+          trend="Total stores"
+          trendUp={true}
+          color="indigo"
+        />
 
-  {/* Sub-Stores */}
-  <StatCard
-    label="Sub-Stores"
-    value={totalSubStores}
-    icon={Thermometer}
-    trend="All substores"
-    trendUp={true}
-    color="purple"
-  />
+        {/* Sub-Stores */}
+        <StatCard
+          label="Sub-Stores"
+          value={totalSubStores}
+          icon={Thermometer}
+          trend="All substores"
+          trendUp={true}
+          color="purple"
+        />
 
-  {/* Sensors Card */}
-  <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
-    <div className="flex items-center justify-between mb-4">
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Sensors</p>
-      <Thermometer className="w-6 h-6 text-blue-500 dark:text-blue-400" />
-    </div>
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-gray-900 dark:text-white">Total Sensors</span>
-        <span className="text-gray-700 dark:text-gray-300">{totalSensors}</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-green-600 dark:text-green-400">Active Sensors</span>
-        <span className="text-gray-700 dark:text-gray-300">{activeSensors}</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-red-600 dark:text-red-400">Inactive Sensors</span>
-        <span className="text-gray-700 dark:text-gray-300">{inactiveSensors}</span>
-      </div>
-    </div>
-  </div>
+        {/* Sensors Card */}
+        <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Sensors</p>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <Thermometer className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-gray-900 dark:text-white">Total Sensors</span>
+              <span className="text-gray-700 dark:text-gray-300">{totalSensors}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-green-600 dark:text-green-400">Active Sensors</span>
+              <span className="text-gray-700 dark:text-gray-300">{activeSensors}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-red-600 dark:text-red-400">Inactive Sensors</span>
+              <span className="text-gray-700 dark:text-gray-300">{inactiveSensors}</span>
+            </div>
+          </div>
+        </div>
 
-  {/* Alerts Card */}
-  <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
-    <div className="flex items-center justify-between mb-4">
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Alerts</p>
-      <AlertTriangle className="w-6 h-6 text-yellow-500 dark:text-yellow-400" />
-    </div>
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-gray-900 dark:text-white">Total Alerts</span>
-        <span className="text-gray-700 dark:text-gray-300">{totalAlerts}</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-blue-600 dark:text-blue-400">Email Alerts</span>
-        <span className="text-gray-700 dark:text-gray-300">{totalEmailAlerts}</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-green-600 dark:text-green-400">SMS Alerts</span>
-        <span className="text-gray-700 dark:text-gray-300">{totalSmsAlerts}</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-orange-600 dark:text-orange-400">Last 24h</span>
-        <span className="text-gray-700 dark:text-gray-300">{alertsLast24h}</span>
-      </div>
-    </div>
-  </div>
+        {/* Alerts Card */}
+        <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Alerts</p>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center shadow-lg">
+              <AlertTriangle className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-gray-900 dark:text-white">Total Alerts</span>
+              <span className="text-gray-700 dark:text-gray-300">{totalAlerts}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-blue-600 dark:text-blue-400">Email Alerts</span>
+              <span className="text-gray-700 dark:text-gray-300">{totalEmailAlerts}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-green-600 dark:text-green-400">SMS Alerts</span>
+              <span className="text-gray-700 dark:text-gray-300">{totalSmsAlerts}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-orange-600 dark:text-orange-400">Last 24h</span>
+              <span className="text-gray-700 dark:text-gray-300">{alertsLast24h}</span>
+            </div>
+          </div>
+        </div>
 
-  {/* Requests Card */}
-  <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
-    <div className="flex items-center justify-between mb-4">
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Requests</p>
-      <ClipboardList className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />
-    </div>
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-orange-600 dark:text-orange-400">Pending Requests</span>
-        <span className="text-gray-700 dark:text-gray-300">{pendingRequests}</span>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-gray-900 dark:text-white">Total Requests</span>
-        <span className="text-gray-700 dark:text-gray-300">{totalRequests}</span>
-      </div>
-    </div>
-  </div>
+        {/* Requests Card */}
+        <div className="relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl p-5 lg:p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Requests</p>
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+              <ClipboardList className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-orange-600 dark:text-orange-400">Pending Requests</span>
+              <span className="text-gray-700 dark:text-gray-300">{pendingRequests}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-gray-900 dark:text-white">Total Requests</span>
+              <span className="text-gray-700 dark:text-gray-300">{totalRequests}</span>
+            </div>
+          </div>
+        </div>
 
-</div>
+      </div>
 
 
       {/* Main Content Grid */}
@@ -265,59 +271,59 @@ const activeSensors = overall?.activeSensors ?? 0;
 
         {/* Active Alerts - Takes 2 columns */}
         <div className="xl:col-span-2 space-y-4">
-          <div className="mt-8 space-y-6 xl:col-span-2">
+          {/* <div className="mt-8 space-y-6 xl:col-span-2">
             <CustomerChart data={chartData} title="Customers Last 30 Days" />
-          </div>
+          </div> */}
 
 
-          
+
           <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-md ">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Active Alerts</h3>
             <div className="flex gap-6">
-            {/* Right side: Alerts List */}
-           <div className="w-2/3 space-y-3 max-h-64 overflow-y-auto">
-  {alerts.map((alert, idx) => {
-    const alertBgColors = [
-      "bg-red-50 dark:bg-red-900/20",
-      "bg-yellow-50 dark:bg-yellow-900/20",
-      "bg-blue-50 dark:bg-blue-900/20",
-    ];
+              {/* Right side: Alerts List */}
+              <div className="w-2/3 space-y-3 max-h-64 overflow-y-auto">
+                {alerts.map((alert, idx) => {
+                  const alertBgColors = [
+                    "bg-red-50 dark:bg-red-900/20",
+                    "bg-yellow-50 dark:bg-yellow-900/20",
+                    "bg-blue-50 dark:bg-blue-900/20",
+                  ];
 
-    return (
-      <div
-        key={idx}
-        className={`p-3 rounded-xl flex justify-between items-start 
-        hover:shadow-md transition 
-        ${alertBgColors[idx % alertBgColors.length]}`}
-      >
-        <div>
-          <p className="font-semibold text-gray-900 dark:text-white">
-            {alert.customerName} → {alert.subStoreName}
-          </p>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
-            {alert.issue}
-          </p>
-        </div>
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-xl flex justify-between items-start 
+                      hover:shadow-md transition 
+                      ${alertBgColors[idx % alertBgColors.length]}`}
+                    >
+                      <div>
+                        <p className="font-semibold text-gray-900 dark:text-white">
+                          {alert.customerName} → {alert.subStoreName}
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {alert.issue}
+                        </p>
+                      </div>
 
-        <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400">
-          <Clock className="w-3 h-3 mb-1" />
-          {alert.timeAgo}
-        </div>
-      </div>
-    );
-  })}
-</div>
+                      <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400">
+                        <Clock className="w-3 h-3 mb-1" />
+                        {alert.timeAgo}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
 
 
-            {/* Left side: Doughnut Chart */}
-            <div className="w-1/3 flex flex-col items-center justify-center">
-              <DoughnutChart alerts={alerts} />
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Alerts Summary
-              </p>
+              {/* Left side: Doughnut Chart */}
+              <div className="w-1/3 flex flex-col items-center justify-center">
+                <DoughnutChart alerts={alerts} />
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  Alerts Summary
+                </p>
+              </div>
+
             </div>
-
-</div>
           </div>
 
 
