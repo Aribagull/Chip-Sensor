@@ -71,7 +71,9 @@ const validateAll = () => {
 
   ['1','2','3'].forEach(level => {
     // Phones
-    const phones: string[] = Array.isArray(form[`phoneNumbersLevel${level}`]) ? form[`phoneNumbersLevel${level}`] : [];
+    const phones: string[] = Array.isArray(form[`phoneNumbersLevel${level}`])
+      ? form[`phoneNumbersLevel${level}`]
+      : [''];
     phones.forEach((phone, idx) => {
       const error = validatePhoneOnBlur(phone);
       if (error) newErrors[`phone-${level}-${idx}`] = error;

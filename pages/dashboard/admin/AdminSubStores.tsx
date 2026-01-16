@@ -85,12 +85,13 @@ const fromPage = location.state?.from as
   | "customers"
   | "locations"
   | undefined;
-  console.log("fromPage =", fromPage);
   const navigate = useNavigate();
   const { storeId } = useParams<{ storeId: string }>();
   const [store, setStore] = useState<Store | null>(null);
   const [showPendingRequests, setShowPendingRequests] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState<any[]>([]);
+  const [expandedSubStore, setExpandedSubStore] = useState<string | null>(null);
+
 
 
   useEffect(() => {
@@ -99,22 +100,28 @@ const fromPage = location.state?.from as
         const data = await getAllUsers();
         const customers = data.customers || [];
 
-        const allStores: Store[] = customers.flatMap((customer: any) =>
-          (customer.stores || []).map((store: any) => ({
-            ...store,
-            ownerUserId: {
-              _id: customer._id,
-              name: customer.name,
-              email: customer.email,
-              phone: customer.phone,
-            },
-            subStores: (store.subStores || []).map((sub: any) => ({
-              ...sub,
-              requests: (customer.requests || []).filter((r: any) => r.subStoreId === sub._id),
-              alerts: (customer.alerts || []).filter((a: any) => a.subStoreId === sub._id),
-            })),
-          }))
-        );
+       const allStores: Store[] = customers.flatMap((customer: any) =>
+  (customer.stores || []).map((store: any) => ({
+    ...store,
+    ownerUserId: {
+      _id: customer._id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+    },
+    subStores: (store.subStores || []).map((sub: any) => {
+      const requests = (customer.requests || []).filter(
+        (r: any) => r.subStoreId === sub._id
+      );
+      return {
+        ...sub,
+        requests,
+        alerts: (customer.alerts || []).filter((a: any) => a.subStoreId === sub._id),
+      };
+    }),
+  }))
+);
+
 
 
         const selectedStore = allStores.find((s) => s._id === storeId);
@@ -161,7 +168,19 @@ const fromPage = location.state?.from as
       <div className="p-6 space-y-4">
         <button
           onClick={() => setShowPendingRequests(false)}
-          className="text-blue-500 hover:underline"
+          className="
+    flex items-center gap-2
+    px-4 py-2
+    bg-white dark:bg-gray-800
+    text-gray-700 dark:text-gray-200
+    font-semibold
+    rounded-lg
+    shadow hover:shadow-md
+    border border-gray-200 dark:border-gray-700
+    transition-all duration-200
+    hover:bg-gray-50 dark:hover:bg-gray-700
+    active:scale-95
+  "
         >
           ← Back to SubStore
         </button>
@@ -342,8 +361,9 @@ const fromPage = location.state?.from as
                         <p className="font-medium text-yellow-600 dark:text-yellow-300">Note: {r.description}</p>
                         <p className="text-yellow-500 dark:text-yellow-200 text-sm">Status: {r.status}</p>
                         <p className="text-gray-500 dark:text-gray-400 text-xs">
-                          Sensors Request: {r.sensors ? r.sensors.length : 0}
-                        </p>
+  Sensors Request: {r.requestedSensors ?? 0}
+</p>
+
                       </div>
                       <p className="text-gray-500 dark:text-gray-400 text-xs">
                         {new Date(r.createdAt).toLocaleDateString()}
