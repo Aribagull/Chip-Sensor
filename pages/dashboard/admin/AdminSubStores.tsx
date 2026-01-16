@@ -1,11 +1,11 @@
 // AdminSubStores.tsx
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { getAllUsers } from '../../../Api/admin/customers';
 import { FiPhone, FiMail, } from "react-icons/fi";
 import PulseLoader from "react-spinners/PulseLoader";
 import AdminSensorList from "./AdminSensorList";
-import { Store, MapPin, AlertTriangle, Mail, MessageCircle, Inbox } from 'lucide-react';
+import { Store, MapPin, AlertTriangle, Mail, MessageCircle, Inbox, ChevronLeft } from 'lucide-react';
 import PendingRequestCard from "./PendingRequestCard";
 
 
@@ -80,6 +80,12 @@ const getSubStoreStatusColor = (sub: any) => {
 
 
 const AdminSubStores: React.FC = () => {
+  const location = useLocation();
+const fromPage = location.state?.from as
+  | "customers"
+  | "locations"
+  | undefined;
+  console.log("fromPage =", fromPage);
   const navigate = useNavigate();
   const { storeId } = useParams<{ storeId: string }>();
   const [store, setStore] = useState<Store | null>(null);
@@ -150,45 +156,76 @@ const AdminSubStores: React.FC = () => {
     );
   }
 
- if (showPendingRequests) {
+  if (showPendingRequests) {
+    return (
+      <div className="p-6 space-y-4">
+        <button
+          onClick={() => setShowPendingRequests(false)}
+          className="text-blue-500 hover:underline"
+        >
+          ← Back to SubStore
+        </button>
+
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Pending Requests
+        </h2>
+
+        {selectedRequests.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400">
+            No pending requests found.
+          </p>
+        ) : (
+          selectedRequests.map((r) => (
+            <PendingRequestCard key={r._id} request={r} />
+          ))
+        )}
+      </div>
+    );
+  }
+
+
+
+
   return (
-    <div className="p-6 space-y-4">
-      <button
-        onClick={() => setShowPendingRequests(false)}
-        className="text-blue-500 hover:underline"
-      >
-        ← Back to SubStore
-      </button>
 
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Pending Requests
-      </h2>
-
-      {selectedRequests.length === 0 ? (
-        <p className="text-gray-500 dark:text-gray-400">
-          No pending requests found.
-        </p>
-      ) : (
-        selectedRequests.map((r) => (
-          <PendingRequestCard key={r._id} request={r} />
-        ))
-      )}
-    </div>
-  );
-}
-
-
-
-
-  return (
-    
     <div className="space-y-6 py-6">
-      <Link
-        to="/admin/locations"
-        className="text-sm text-blue-400 hover:underline flex items-center mb-2"
-      >
-        &larr; Back to All Locations
-      </Link>
+     {/* Back Button */}
+<div className="mb-6">
+  <button
+    onClick={() => {
+      if (fromPage === "customers") {
+        navigate("/admin/customers");
+      } else if (fromPage === "locations") {
+        navigate("/admin/locations");
+      } else {
+        navigate(-1); // fallback
+      }
+    }}
+    className="
+      flex items-center gap-2
+      px-4 py-2
+      bg-white dark:bg-gray-800
+      text-gray-700 dark:text-gray-200
+      font-semibold
+      rounded-lg
+      shadow hover:shadow-md
+      border border-gray-200 dark:border-gray-700
+      transition-all duration-200
+      hover:bg-gray-50 dark:hover:bg-gray-700
+      active:scale-95
+    "
+  >
+    <ChevronLeft className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+    {fromPage === "customers" && "Back to Customers"}
+    {fromPage === "locations" && "Back to Locations"}
+    {!fromPage && "Back"}
+  </button>
+</div>
+
+
+
+
+
 
       {/* Store Card */}
       <div className="dark:bg-gray-800 bg-white shadow-soft dark:shadow-none rounded-lg p-6 flex justify-between items-center">
@@ -243,7 +280,7 @@ const AdminSubStores: React.FC = () => {
                 </div>
               </div>
               <p
-                className={`font-semibold ${getCurrentTemperature(sub) !== undefined
+                className={`font-semibold${getCurrentTemperature(sub) !== undefined
                   ? getCurrentTemperature(sub)! < 32
                     ? "text-green-500"
                     : getCurrentTemperature(sub)! >= 38
@@ -263,7 +300,7 @@ const AdminSubStores: React.FC = () => {
 
             <div className="mt-4 space-y-4">
 
-              
+
 
               {sub.requests && sub.requests.some((r: any) => r.status === "pending") ? (
                 sub.requests
@@ -273,31 +310,31 @@ const AdminSubStores: React.FC = () => {
                       key={r._id}
                       className="flex justify-between items-center bg-yellow-50 dark:bg-yellow-900/50 p-3 rounded-xl mb-2 text-sm hover:bg-yellow-100 dark:hover:bg-yellow-800 transition-all cursor-pointer shadow-sm"
                       onClick={() => {
-  const pendingRequests = sub.requests
-    .filter((r: any) => r.status === "pending")
-    .map((r: any) => ({
-      ...r,
+                        const pendingRequests = sub.requests
+                          .filter((r: any) => r.status === "pending")
+                          .map((r: any) => ({
+                            ...r,
 
-      customer: {
-        _id: store.ownerUserId._id,
-        name: store.ownerUserId.name,
-        email: store.ownerUserId.email,
-        phone: store.ownerUserId.phone,
-      },
-      store: {
-        _id: store._id,
-        storeName: store.storeName,
-      },
+                            customer: {
+                              _id: store.ownerUserId._id,
+                              name: store.ownerUserId.name,
+                              email: store.ownerUserId.email,
+                              phone: store.ownerUserId.phone,
+                            },
+                            store: {
+                              _id: store._id,
+                              storeName: store.storeName,
+                            },
 
-      subStore: {
-        _id: sub._id,
-        name: sub.name,
-      },
-    }));
+                            subStore: {
+                              _id: sub._id,
+                              name: sub.name,
+                            },
+                          }));
 
-  setSelectedRequests(pendingRequests);
-  setShowPendingRequests(true);
-}}
+                        setSelectedRequests(pendingRequests);
+                        setShowPendingRequests(true);
+                      }}
 
 
                     >

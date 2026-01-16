@@ -57,12 +57,6 @@ const getTotalRequests = (customer: any) => {
   }, [searchTerm]);
 
 
-
-  const filteredCustomers = customers.filter(c =>
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleEditClick = async (id: string) => {
     try {
       setLoading(true);
@@ -129,6 +123,10 @@ const getTotalPendingRequests = (customer: any) => {
   return customer.requests?.filter((req: any) => req.status === "pending").length || 0;
 };
 
+const filteredCustomers = customers.filter(c =>
+  c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  c.email?.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
 
 
@@ -184,20 +182,23 @@ const getTotalPendingRequests = (customer: any) => {
 ) : (
       <Card className="p-0 overflow-hidden border-none shadow-soft dark:shadow-none" noPadding>
         {/* Search */}
-        <div className="p-4 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
-          <div className="relative max-w-sm">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-            </div>
-            <input
-              type="text"
-              className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary sm:text-sm transition-all"
-              placeholder="Search customers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
+      <div className="p-4 border-b border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
+  <div className="flex justify-end">
+    <div className="relative max-w-sm w-full sm:w-[320px]">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+      </div>
+      <input
+        type="text"
+        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 dark:border-slate-700 rounded-xl leading-5 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary sm:text-sm transition-all"
+        placeholder="Search customers..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+  </div>
+</div>
+
 
         {/* Table */}
         <div className="overflow-x-auto">
@@ -224,8 +225,8 @@ const getTotalPendingRequests = (customer: any) => {
         </div>
       </td>
     </tr>
-  ) : customers.length > 0 ? (
-    customers.map(customer => (
+  ) : filteredCustomers.length > 0 ? (
+  filteredCustomers.map(customer => (
       <tr
         key={customer._id}
         className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors"
