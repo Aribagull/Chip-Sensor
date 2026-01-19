@@ -91,6 +91,7 @@ const fromPage = location.state?.from as
   const [showPendingRequests, setShowPendingRequests] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState<any[]>([]);
   const [expandedSubStore, setExpandedSubStore] = useState<string | null>(null);
+  
 
 
 
@@ -207,7 +208,7 @@ const fromPage = location.state?.from as
 
   return (
 
-    <div className="space-y-6 py-6">
+    <div className="space-y-6 py-6 bg-slate-50 dark:bg-gray-900  px-6">
      {/* Back Button */}
 <div className="mb-6">
   <button
@@ -217,7 +218,7 @@ const fromPage = location.state?.from as
       } else if (fromPage === "locations") {
         navigate("/admin/locations");
       } else {
-        navigate(-1); // fallback
+        navigate(-1);
       }
     }}
     className="
@@ -380,51 +381,12 @@ const fromPage = location.state?.from as
               {/* Sensors List */}
 
               <div className="mt-4">
-                <AdminSensorList sensors={sub.sensors} />
+                <AdminSensorList sensors={sub.sensors} alerts={sub.alerts} />
+
               </div>
 
 
               <div className="flex flex-col">
-
-
-
-                {/* Alerts Summary */}
-                <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900 rounded-xl shadow-md dark:shadow-none">
-                  {/* Title */}
-                  <h1 className="text-2xl font-bold mb-5 text-gray-700 dark:text-gray-200 flex items-center gap-3">
-                    <AlertTriangle className="w-7 h-7 text-red-500" /> Alerts Summary
-                  </h1>
-
-                  {/* Alerts Boxes */}
-                  <div className="grid grid-cols-3 gap-5">
-                    {/* Total Alerts */}
-                    <div className="flex items-center gap-3 bg-gradient-to-r from-gray-200 to-gray-100 dark:from-gray-700 dark:to-gray-800 p-4 rounded-xl shadow hover:shadow-lg transition-all cursor-pointer">
-                      <MessageCircle className="w-6 h-6 text-gray-800 dark:text-gray-200" />
-                      <div>
-                        <p className="text-gray-800 dark:text-gray-200 font-semibold text-sm">Total Alerts</p>
-                        <p className="text-2xl font-bold">{sub.totalAlerts}</p>
-                      </div>
-                    </div>
-
-                    {/* SMS Alerts */}
-                    <div className="flex items-center gap-3 bg-gradient-to-r from-yellow-100 to-yellow-50 dark:from-yellow-900/50 dark:to-yellow-800 p-4 rounded-xl shadow hover:shadow-lg transition-all cursor-pointer">
-                      <MessageCircle className="w-6 h-6 text-yellow-800 dark:text-yellow-300" />
-                      <div>
-                        <p className="text-yellow-800 dark:text-yellow-300 font-semibold text-sm">SMS Alerts</p>
-                        <p className="text-2xl font-bold">{sub.alertsByChannel.sms}</p>
-                      </div>
-                    </div>
-
-                    {/* Email Alerts */}
-                    <div className="flex items-center gap-3 bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/50 dark:to-blue-800 p-4 rounded-xl shadow hover:shadow-lg transition-all cursor-pointer">
-                      <Mail className="w-6 h-6 text-blue-800 dark:text-blue-300" />
-                      <div>
-                        <p className="text-blue-800 dark:text-blue-300 font-semibold text-sm">Email Alerts</p>
-                        <p className="text-2xl font-bold">{sub.alertsByChannel.email}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
 
                 {/* Alert Configuration */}

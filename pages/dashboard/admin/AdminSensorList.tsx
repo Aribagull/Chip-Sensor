@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Thermometer, DoorOpen, Eye } from "lucide-react";
+import { Thermometer, DoorOpen, Eye, AlertTriangle , MessageSquare, Mail} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TemperatureChart from "@/components/dashboard/TemperatureChart";
 
@@ -20,9 +20,10 @@ const AdminSensorList: React.FC<SensorListProps> = ({ sensors }) => {
     );
   }
 
- const validRecords = selectedSensor.temperatureRecords.filter(
+ const validRecords = selectedSensor?.temperatureRecords?.filter(
   (r) => r.currentTempC !== null && r.currentTempC !== undefined
-);
+) || [];
+
 
  const chartData = validRecords.map(r =>
   Number(r.currentTempC.toFixed(2))
@@ -42,6 +43,7 @@ const maxTemp =
 
 
   return (
+    <>
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT: Sensor List */}
       <div className="space-y-3">
@@ -153,6 +155,65 @@ const maxTemp =
         </div>
       )}
     </div>
+      {selectedSensor && (
+  <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900 rounded-2xl shadow-lg">
+    <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-3">
+      <AlertTriangle className="w-7 h-7 text-red-500" />
+      {selectedSensor.sensorName} Alerts
+    </h1>
+
+    <div className="p-5 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          {selectedSensor.sensorName}
+        </h3>
+
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          Total Alerts: <b>{selectedSensor.totalAlerts || 0}</b>
+        </span>
+      </div>
+
+      {/* Alert Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Total */}
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20">
+          <AlertTriangle className="w-7 h-7 text-red-500" />
+          <div>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Total Alerts</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {selectedSensor.totalAlerts || 0}
+            </p>
+          </div>
+        </div>
+
+        {/* SMS */}
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/20">
+          <MessageSquare className="w-7 h-7 text-yellow-500" />
+          <div>
+            <p className="text-sm text-gray-600 dark:text-gray-300">SMS Alerts</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {selectedSensor.alertsByChannel?.sms || 0}
+            </p>
+          </div>
+        </div>
+
+        {/* Email */}
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+          <Mail className="w-7 h-7 text-blue-500" />
+          <div>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Email Alerts</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {selectedSensor.alertsByChannel?.email || 0}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+</>
   );
 };
 

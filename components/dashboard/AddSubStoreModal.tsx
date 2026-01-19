@@ -131,12 +131,18 @@ const validateAll = () => {
 
   // ---------------- Render Dynamic Fields ----------------
   const renderDynamicFields = (level: number) => {
-    const phones: string[] = Array.isArray(form[`phoneNumbersLevel${level}`])
-      ? form[`phoneNumbersLevel${level}`]
-      : [''];
-    const emails: string[] = Array.isArray(form[`emailRecipientsLevel${level}`])
-      ? form[`emailRecipientsLevel${level}`]
-      : [''];
+   const phonesRaw = Array.isArray(form[`phoneNumbersLevel${level}`])
+  ? form[`phoneNumbersLevel${level}`]
+  : [];
+
+const phones: string[] = phonesRaw.length > 0 ? phonesRaw : [''];
+
+const emailsRaw = Array.isArray(form[`emailRecipientsLevel${level}`])
+  ? form[`emailRecipientsLevel${level}`]
+  : [];
+
+const emails: string[] = emailsRaw.length > 0 ? emailsRaw : [''];
+
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
