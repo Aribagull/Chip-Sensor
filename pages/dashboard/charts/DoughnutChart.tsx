@@ -9,25 +9,19 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-interface Alert {
-  level: 1 | 2 | 3;
+interface DoughnutChartProps {
+  totalAlerts: number;
+  totalSmsAlerts: number;
+  totalEmailAlerts: number;
 }
 
-interface Props {
-  alerts: Alert[];
-}
-
-const DoughnutChart: React.FC<Props> = ({ alerts }) => {
-  // Count alerts by level
-  const levelCounts = [0, 0, 0]; // 0: Critical, 1: Warning, 2: Notice
-  alerts.forEach((a) => levelCounts[a.level - 1]++);
-
+const DoughnutChart: React.FC<DoughnutChartProps> = ({ totalAlerts, totalSmsAlerts, totalEmailAlerts }) => {
   const data = {
-    labels: ["Critical", "Warning", "Notice"],
+    labels: ["Total Alerts", "SMS Alerts", "Email Alerts"],
     datasets: [
       {
-        data: levelCounts,
-        backgroundColor: ["#f87171", "#fbbf24", "#60a5fa"], // red, yellow, blue
+        data: [totalAlerts, totalSmsAlerts, totalEmailAlerts],
+        backgroundColor: ["#f87171", "#34d399", "#60a5fa"], // red, green, blue
         borderWidth: 0,
       },
     ],
@@ -42,5 +36,6 @@ const DoughnutChart: React.FC<Props> = ({ alerts }) => {
 
   return <Doughnut data={data} options={options} />;
 };
+
 
 export default DoughnutChart;

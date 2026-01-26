@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Plus, Search, Store,
   Layers,
   Thermometer,
-  Activity } from 'lucide-react';
+  Activity, AlertTriangle } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import LocationCard from '../../components/dashboard/LocationCard';
 import Modal from '../../components/ui/Modal';
@@ -121,6 +121,11 @@ const handleStoreDelete = (id: string) => {
     setLoading(false);
   }
 };
+const totalAlerts = stores.reduce(
+  (acc, store) => acc + (store.totalAlerts || 0),
+  0
+);
+
 
 
   return (
@@ -180,7 +185,7 @@ const handleStoreDelete = (id: string) => {
     </div>
   </div>
   {/* Stats Cards */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
 
   {/* Total Stores */}
   <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
@@ -262,7 +267,24 @@ const handleStoreDelete = (id: string) => {
         Active Sensors
       </p>
     </div>
+   
+
   </div>
+ {/* Total Alerts */}
+<div className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+  <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-xl">
+    <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+  </div>
+
+  <div>
+    <p className="text-2xl font-bold text-gray-900 dark:text-white">
+      {totalAlerts}
+    </p>
+    <p className="text-sm text-gray-500 dark:text-gray-400">
+      Total Alerts
+    </p>
+  </div>
+</div>
 
 </div>
 
@@ -273,23 +295,34 @@ const handleStoreDelete = (id: string) => {
       {/* Stores Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 min-h-[200px] relative">
   {loadingStores ? (
-    <div className="absolute inset-0 flex justify-center items-center  z-10">
+    <div className="absolute inset-0 flex justify-center items-center z-10">
       <PulseLoader color="#3b82f6" loading={loadingStores} size={15} />
     </div>
   ) : stores.length === 0 ? (
-    <p className="text-center col-span-full text-gray-500">No stores found</p>
+    // Make this card span all columns
+    <div className="flex flex-col items-center justify-center py-20 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-dashed border-gray-300 dark:border-slate-600 col-span-full">
+      <Store className="w-12 h-12 text-gray-400 mb-3" />
+      <p className="text-lg font-semibold text-gray-700 dark:text-slate-300">
+        No Store Available
+      </p>
+      <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+        No store, sub-store or sensor has been added for this customer.
+      </p>
+    </div>
   ) : (
     stores.map((store) => (
-     <LocationCard
-  key={store._id}
-  location={store}
-  onUpdate={handleStoreUpdate}
-  onDelete={handleStoreDelete}
-/>
-
+      <div className="w-full">
+        <LocationCard
+          key={store._id}
+          location={store}
+          onUpdate={handleStoreUpdate}
+          onDelete={handleStoreDelete}
+        />
+      </div>
     ))
   )}
 </div>
+
 
 
       {/* Add Store Modal */}

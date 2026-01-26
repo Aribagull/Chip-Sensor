@@ -12,41 +12,14 @@ import DoughnutChart from "./charts/DoughnutChart";
 
 
 
-interface Alert {
+interface CustomerAlert {
   customerName: string;
-  locationName: string;
-  subStoreName: string;
-  issue: string;
-  level: 1 | 2 | 3;
-  timeAgo: string;
+  totalAlerts: number;
+  totalSms: number;
+  totalEmail: number;
+  last24h: number;
 }
 
-const alerts: Alert[] = [
-  {
-    customerName: "Customer 1",
-    locationName: "Location A",
-    subStoreName: "SubStore 1",
-    issue: "Sensor offline",
-    level: 1,
-    timeAgo: "5 min ago",
-  },
-  {
-    customerName: "Customer 2",
-    locationName: "Location B",
-    subStoreName: "SubStore 2",
-    issue: "Temperature high",
-    level: 2,
-    timeAgo: "10 min ago",
-  },
-  {
-    customerName: "Customer 3",
-    locationName: "Location C",
-    subStoreName: "SubStore 3",
-    issue: "Battery low",
-    level: 3,
-    timeAgo: "15 min ago",
-  },
-];
 
 const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -75,6 +48,13 @@ const AdminDashboard: React.FC = () => {
   }, []);
 
 
+const customerAlerts: CustomerAlert[] = customers.map(c => ({
+  customerName: c.name,
+  totalAlerts: c.totalNotificationsSent,
+  totalSms: c.totalSmsSent,
+  totalEmail: c.totalEmailSent,
+  last24h: c.notificationsLast24h
+}));
 
 
 
@@ -281,43 +261,48 @@ const AdminDashboard: React.FC = () => {
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-5">Active Alerts</h3>
             <div className="flex gap-6">
               {/* Right side: Alerts List */}
-              <div className="w-2/3 space-y-3 max-h-64 overflow-y-auto">
-                {alerts.map((alert, idx) => {
-                  const alertBgColors = [
-                    "bg-red-50 dark:bg-red-900/20",
-                    "bg-yellow-50 dark:bg-yellow-900/20",
-                    "bg-blue-50 dark:bg-blue-900/20",
-                  ];
+             <div
+  className={`w-2/3 space-y-3 ${customers.length > 10 ? 'max-h-96 overflow-y-auto' : ''}`}
+>
+  {customers.map((c, idx) => {
+    const bgColors = [
+      "bg-red-50 dark:bg-red-900/20",
+      "bg-yellow-50 dark:bg-yellow-900/20",
+      "bg-blue-50 dark:bg-blue-900/20"
+    ];
 
-                  return (
-                    <div
-                      key={idx}
-                      className={`p-3 rounded-xl flex justify-between items-start 
-                      hover:shadow-md transition 
-                      ${alertBgColors[idx % alertBgColors.length]}`}
-                    >
-                      <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">
-                          {alert.customerName} → {alert.subStoreName}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          {alert.issue}
-                        </p>
-                      </div>
+    return (
+      <div
+        key={c._id}
+        className={`p-3 rounded-xl flex justify-between items-start hover:shadow-md transition ${bgColors[idx % bgColors.length]}`}
+      >
+        <div>
+          <p className="font-semibold text-gray-900 dark:text-white">
+            {c.name} → {c.totalSubStores} Sub-Stores
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            Total Alerts: {c.totalNotificationsSent}, SMS: {c.totalSmsSent}, Email: {c.totalEmailSent}
+          </p>
+        </div>
 
-                      <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400">
-                        <Clock className="w-3 h-3 mb-1" />
-                        {alert.timeAgo}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+        <div className="flex flex-col items-end text-xs text-gray-500 dark:text-gray-400">
+          <Clock className="w-3 h-3 mb-1" />
+          Last 24h: {c.notificationsLast24h}
+        </div>
+      </div>
+    );
+  })}
+</div>
 
 
               {/* Left side: Doughnut Chart */}
               <div className="w-1/3 flex flex-col items-center justify-center">
-                <DoughnutChart alerts={alerts} />
+                <DoughnutChart 
+  totalAlerts={overall?.totalAlerts ?? 0} 
+  totalSmsAlerts={overall?.totalSmsAlerts ?? 0} 
+  totalEmailAlerts={overall?.totalEmailAlerts ?? 0} 
+/>
+
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   Alerts Summary
                 </p>

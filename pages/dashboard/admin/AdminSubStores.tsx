@@ -5,7 +5,7 @@ import { getAllUsers } from '../../../Api/admin/customers';
 import { FiPhone, FiMail, } from "react-icons/fi";
 import PulseLoader from "react-spinners/PulseLoader";
 import AdminSensorList from "./AdminSensorList";
-import { Store, MapPin, AlertTriangle, Mail, MessageCircle, Inbox, ChevronLeft } from 'lucide-react';
+import { Store, MapPin, AlertTriangle, Mail, Settings, Inbox, ChevronLeft } from 'lucide-react';
 import PendingRequestCard from "./PendingRequestCard";
 
 
@@ -81,17 +81,17 @@ const getSubStoreStatusColor = (sub: any) => {
 
 const AdminSubStores: React.FC = () => {
   const location = useLocation();
-const fromPage = location.state?.from as
-  | "customers"
-  | "locations"
-  | undefined;
+  const fromPage = location.state?.from as
+    | "customers"
+    | "locations"
+    | undefined;
   const navigate = useNavigate();
   const { storeId } = useParams<{ storeId: string }>();
   const [store, setStore] = useState<Store | null>(null);
   const [showPendingRequests, setShowPendingRequests] = useState(false);
   const [selectedRequests, setSelectedRequests] = useState<any[]>([]);
   const [expandedSubStore, setExpandedSubStore] = useState<string | null>(null);
-  
+
 
 
 
@@ -101,27 +101,27 @@ const fromPage = location.state?.from as
         const data = await getAllUsers();
         const customers = data.customers || [];
 
-       const allStores: Store[] = customers.flatMap((customer: any) =>
-  (customer.stores || []).map((store: any) => ({
-    ...store,
-    ownerUserId: {
-      _id: customer._id,
-      name: customer.name,
-      email: customer.email,
-      phone: customer.phone,
-    },
-    subStores: (store.subStores || []).map((sub: any) => {
-      const requests = (customer.requests || []).filter(
-        (r: any) => r.subStoreId === sub._id
-      );
-      return {
-        ...sub,
-        requests,
-        alerts: (customer.alerts || []).filter((a: any) => a.subStoreId === sub._id),
-      };
-    }),
-  }))
-);
+        const allStores: Store[] = customers.flatMap((customer: any) =>
+          (customer.stores || []).map((store: any) => ({
+            ...store,
+            ownerUserId: {
+              _id: customer._id,
+              name: customer.name,
+              email: customer.email,
+              phone: customer.phone,
+            },
+            subStores: (store.subStores || []).map((sub: any) => {
+              const requests = (customer.requests || []).filter(
+                (r: any) => r.subStoreId === sub._id
+              );
+              return {
+                ...sub,
+                requests,
+                alerts: (customer.alerts || []).filter((a: any) => a.subStoreId === sub._id),
+              };
+            }),
+          }))
+        );
 
 
 
@@ -209,19 +209,19 @@ const fromPage = location.state?.from as
   return (
 
     <div className="space-y-6 py-6 bg-slate-50 dark:bg-gray-900  px-6">
-     {/* Back Button */}
-<div className="mb-6">
-  <button
-    onClick={() => {
-      if (fromPage === "customers") {
-        navigate("/admin/customers");
-      } else if (fromPage === "locations") {
-        navigate("/admin/locations");
-      } else {
-        navigate(-1);
-      }
-    }}
-    className="
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => {
+            if (fromPage === "customers") {
+              navigate("/admin/customers");
+            } else if (fromPage === "locations") {
+              navigate("/admin/locations");
+            } else {
+              navigate("/admin/customers");
+            }
+          }}
+          className="
       flex items-center gap-2
       px-4 py-2
       bg-white dark:bg-gray-800
@@ -234,13 +234,13 @@ const fromPage = location.state?.from as
       hover:bg-gray-50 dark:hover:bg-gray-700
       active:scale-95
     "
-  >
-    <ChevronLeft className="h-5 w-5 text-gray-500 dark:text-gray-300" />
-    {fromPage === "customers" && "Back to Customers"}
-    {fromPage === "locations" && "Back to Locations"}
-    {!fromPage && "Back"}
-  </button>
-</div>
+        >
+          <ChevronLeft className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+          {fromPage === "customers" && "Back to Customers"}
+          {fromPage === "locations" && "Back to Locations"}
+          {!fromPage && "Back"}
+        </button>
+      </div>
 
 
 
@@ -362,8 +362,8 @@ const fromPage = location.state?.from as
                         <p className="font-medium text-yellow-600 dark:text-yellow-300">Note: {r.description}</p>
                         <p className="text-yellow-500 dark:text-yellow-200 text-sm">Status: {r.status}</p>
                         <p className="text-gray-500 dark:text-gray-400 text-xs">
-  Sensors Request: {r.requestedSensors ?? 0}
-</p>
+                          Sensors Request: {r.requestedSensors ?? 0}
+                        </p>
 
                       </div>
                       <p className="text-gray-500 dark:text-gray-400 text-xs">
@@ -372,7 +372,7 @@ const fromPage = location.state?.from as
                     </div>
                   ))
               ) : (
-                <div className="flex items-center justify-end bg-gray-100 dark:bg-gray-800 rounded-xl p-4 text-gray-500 dark:text-gray-400 text-sm font-medium gap-2 shadow-sm">
+                <div className="flex items-center justify-end bg-gray-100 dark:bg-gray-800 rounded-xl p-4 text-gray-500 dark:text-yellow-500 text-sm font-medium gap-2 shadow-sm">
                   <Inbox className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                   No pending requests
                 </div>
@@ -393,7 +393,10 @@ const fromPage = location.state?.from as
                 <div className="mt-6 bg-gray-100 dark:bg-gray-900 rounded-xl p-6 py-8">
 
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">SubStore Level Notification</h3>
+                    <div className="flex items-center">
+                      <Settings className="h-7 w-7 text-gray-400 dark:text-gray-500 mr-2" />
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white uppercase">SubStore Level Notification</h3>
+                    </div>
                     <div
                       onClick={(e) => e.stopPropagation()}
                     >

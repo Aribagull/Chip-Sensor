@@ -124,34 +124,17 @@ const TemperatureHistory: React.FC = () => {
       </Card>
 
       {/* Temperature Chart */}
-      <Card title="Temperature Trend" className="h-96">
+      <Card title="Temperature Trend" className="h-[450px]">
         <div className="h-full flex justify-center items-center">
           {loading ? (
             <PulseLoader color="#3b82f6" size={15} />
           ) : selectedSensor && selectedSensor.temperatureRecords?.length ? (
             <TemperatureChart
-              data={selectedSensor.temperatureRecords
-                .map((r: any) => r.currentTempC)
-                .filter(t => t !== null && t !== undefined)}
-              labels={selectedSensor.temperatureRecords
-                .filter((r: any) => r.currentTempC !== null && r.currentTempC !== undefined)
-                .map((r: any) => {
-                  const d = new Date(r.recordedAt);
-                  return `${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
-                })}
-              minTemp={Math.min(
-                ...selectedSensor.temperatureRecords
-                  .map((r: any) => r.currentTempC)
-                  .filter(t => t !== null && t !== undefined),
-                0
-              )}
-              maxTemp={Math.max(
-                ...selectedSensor.temperatureRecords
-                  .map((r: any) => r.currentTempC)
-                  .filter(t => t !== null && t !== undefined),
-                100
-              )}
-            />
+  records={selectedSensor.temperatureRecords}
+  minTemp={Math.min(...selectedSensor.temperatureRecords.map(r => r.currentTempC))}
+  maxTemp={Math.max(...selectedSensor.temperatureRecords.map(r => r.currentTempC))}
+/>
+
 
 
           ) : (

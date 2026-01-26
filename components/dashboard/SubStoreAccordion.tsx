@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertTriangle, Thermometer, DoorOpen, Settings, Info, Zap, Box, Phone, Mail, Activity, Edit, Trash2, Eye } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertTriangle, Thermometer, MessageSquare, DoorOpen, Settings, Info, Zap, Box, Phone, Mail, Activity, Edit, Trash2, Eye } from 'lucide-react';
 import { SubStore } from '../../types';
 import Button from '../ui/Button';
 import Toggle from '../ui/Toggle';
@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { FiPhone, FiMail } from "react-icons/fi";
 import Modal from '../ui/Modal';
+
 
 
 interface SubStoreAccordionProps {
@@ -386,74 +387,108 @@ const SubStoreAccordion: React.FC<SubStoreAccordionProps> = ({ subStore, onReque
                               )}
                               <div className="flex items-center justify-between mb-4">
                                  <h4 className="font-bold mb-2 text-green-500 text-xl ">
-                                    <Thermometer className="h-5 w-5 mr-2 inline text-green-500" />{selectedSensor.sensorName} - <span className='dark:text-gray-200 text-black'>{selectedSensor.avgTempHours}h Temperature Data</span>
+                                    <Thermometer className="h-5 w-5 mr-2 inline text-green-500" />{selectedSensor.sensorName} - <span className='dark:text-gray-200 text-black'>Temperature Graph</span>
                                  </h4>
                                  <p></p>
                                  <div className="flex gap-2">
                                     <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
-                                       Last {selectedSensor.avgTempHours}h
+                                       Avg Temp {selectedSensor.avgTempHours}h
                                     </span>
                                  </div>
                               </div>
 
-                              <div className="h-56">
+                              <div className="h-80">
                                  {selectedSensor && selectedSensor.temperatureRecords && selectedSensor.temperatureRecords.length > 0 ? (
-                                    (() => {
-                                       const filteredRecords = selectedSensor.temperatureRecords.filter(
-                                          r => r.currentTempC !== null && r.currentTempC !== undefined
-                                       );
-
-                                       const data = filteredRecords.map(r => r.currentTempC);
-
-                                       const labels = filteredRecords.map(r =>
-                                          new Date(r.recordedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                       );
-                                       const minTemp =
-                                          Number((Math.floor(Math.min(...data)) - 1).toFixed(1));
-
-                                       const maxTemp =
-                                          Number((Math.ceil(Math.max(...data)) + 1).toFixed(1));
-
-
-                                       return (
-                                          <TemperatureChart
-                                             data={data}
-                                             labels={labels}
-                                             minTemp={minTemp}
-                                             maxTemp={maxTemp}
-                                          />
-                                       );
-                                    })()
+                                    <TemperatureChart
+                                       records={selectedSensor.temperatureRecords}
+                                       minTemp={selectedSensor.temperatureRecords.length > 0
+                                          ? Math.floor(Math.min(...selectedSensor.temperatureRecords.map(r => r.currentTempC!)) - 1)
+                                          : undefined
+                                       }
+                                       maxTemp={selectedSensor.temperatureRecords.length > 0
+                                          ? Math.ceil(Math.max(...selectedSensor.temperatureRecords.map(r => r.currentTempC!)) + 1)
+                                          : undefined
+                                       }
+                                    />
                                  ) : (
                                     <p className="text-sm text-gray-400 text-center">
                                        No temperature data available
                                     </p>
                                  )}
 
+
                               </div>
 
                            </div>
 
 
-
-
                         </div>
+                        {/* Selected Sensor Alerts */}
+                        {selectedSensor && (
+                           <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900 rounded-2xl shadow-lg">
+                              <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-3 uppercase">
+                                 <AlertTriangle className="w-7 h-7 text-red-500" />
+                                 {selectedSensor.sensorName} Alerts
+                              </h1>
+
+                              <div className="p-5 bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition">
+                                 <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2 uppercase">
+                                       <Thermometer className="w-5 h-5 text-green-500" />
+                                       {selectedSensor.sensorName}
+                                    </h3>
+
+
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                       Total Alerts: <b>{selectedSensor.totalAlerts || 0}</b>
+                                    </span>
+                                 </div>
+
+                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div className="flex items-center gap-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20">
+                                       <AlertTriangle className="w-7 h-7 text-red-500" />
+                                       <div>
+                                          <p className="text-sm text-gray-600 dark:text-gray-300">Total Alerts</p>
+                                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                             {selectedSensor.totalAlerts || 0}
+                                          </p>
+                                       </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/20">
+                                       <MessageSquare className="w-7 h-7 text-yellow-500" />
+                                       <div>
+                                          <p className="text-sm text-gray-600 dark:text-gray-300">SMS Alerts</p>
+                                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                             {selectedSensor.alertsByChannel?.sms || 0}
+                                          </p>
+                                       </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+                                       <Mail className="w-7 h-7 text-blue-500" />
+                                       <div>
+                                          <p className="text-sm text-gray-600 dark:text-gray-300">Email Alerts</p>
+                                          <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                             {selectedSensor.alertsByChannel?.email || 0}
+                                          </p>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+                           </div>
+                        )}
                      </div>
 
-                     {/* Configuration Section */}
-                     <div className="p-6">
-                        <div className="flex items-center">
-                           <Settings className="h-5 w-5 text-gray-400 dark:text-gray-500 mr-2" />
-                           <h3 className="text-lg font-bold text-gray-900 dark:text-white">Alert Configuration</h3>
-                        </div>
-
-                     </div>
                   </div>
                )}
                {/* Level Notification*/}
-               <div className="mt-6 bg-gray-100 dark:bg-gray-900 rounded-xl p-4 m-5">
-                  <div className="flex justify-between items-center mb-4">
-                     <h3 className="text-lg font-semibold">SubStore Level Notification</h3>
+               <div className="mt-6 bg-gray-100 dark:bg-gray-900 rounded-xl px-6 py-10 pb-14 m-5">
+                  <div className="flex justify-between items-center mb-7">
+                     <div className="flex items-center">
+                        <Settings className="h-7 w-7 text-gray-400 dark:text-gray-500 mr-2" />
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white uppercase">SubStore Level Notification</h3>
+                     </div>
                      <Toggle enabled={notificationEnabled} />
                   </div>
 

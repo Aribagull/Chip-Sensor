@@ -49,7 +49,7 @@ const getTotalSubStores = () =>
 
 
     return (
-        <div className="space-y-8 px-4 sm:px-6 lg:px-8 bg-sale-gray-100 dark:bg-slate-900 min-h-screen py-6">
+        <div className="space-y-8 px-4 sm:px-6 lg:px-8  min-h-screen py-6">
 
             {/* Back Button */}
             <div>
@@ -59,7 +59,7 @@ const getTotalSubStores = () =>
             </div>
 
             {/* Customer Header */}
-            <div className="bg-gray-50 dark:bg-slate-800 rounded-2xl p-6 shadow-sm">
+            <div className="bg-gray-50 dark:bg-slate-900 rounded-2xl p-6 shadow-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
 
                     <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center font-bold text-xl text-blue-600 dark:text-blue-400">
@@ -82,7 +82,7 @@ const getTotalSubStores = () =>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
 
                     {/* Total Stores */}
-                    <div className="bg-white dark:bg-slate-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
                         <div className="bg-slate-100 dark:bg-slate-600 p-3 rounded-xl">
                             <Store className="w-6 h-6 text-slate-700 dark:text-yellow-500" />
                         </div>
@@ -95,7 +95,7 @@ const getTotalSubStores = () =>
                             </p>
                         </div>
                     </div>
-                    <div className="bg-white dark:bg-slate-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
     <div className="bg-slate-100 dark:bg-slate-600 p-3 rounded-xl">
         <Layers className="w-6 h-6 text-slate-700 dark:text-yellow-500" />
     </div>
@@ -110,7 +110,7 @@ const getTotalSubStores = () =>
 </div>
 
                     {/* Total Sensors */}
-                    <div className="bg-white dark:bg-slate-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
                         <div className="bg-emerald-100 dark:bg-emerald-700/30 p-3 rounded-xl">
                             <Thermometer className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                         </div>
@@ -125,7 +125,7 @@ const getTotalSubStores = () =>
                     </div>
 
                     {/* Total Alerts */}
-                    <div className="bg-white dark:bg-slate-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
                         <div className="bg-red-100 dark:bg-red-900/30 p-3 rounded-xl">
                             <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
                         </div>
@@ -140,7 +140,7 @@ const getTotalSubStores = () =>
                     </div>
 
                     {/* Requests */}
-                    <div className="bg-white dark:bg-slate-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
                         <div className="bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-xl">
                             <FileText className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                         </div>
@@ -206,13 +206,13 @@ const getTotalSubStores = () =>
 
                                 <div
                                     key={store._id}
-                                    className="bg-gray-50 dark:bg-slate-800 rounded-2xl p-5 hover:shadow-md transition cursor-pointer flex flex-col justify-between border border-gray-200 dark:border-slate-700"
+                                    className="bg-gray-50 dark:bg-slate-900 rounded-2xl p-5 hover:shadow-md transition cursor-pointer flex flex-col justify-between border border-gray-200 dark:border-slate-700"
                                 >
                                     {/* Header */}
 
-                                    <div className="flex-col justify-between items-start mb-4 m-4 pt-5  bg-gray-50 dark:bg-slate-700 rounded-t-2xl ">
+                                    <div className="flex-col justify-between items-start mb-4 m-4 pt-5  bg-gray-50 dark:bg-slate-800 rounded-t-2xl ">
                                         <div className="flex items-center gap-4 ">
-                                            <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-600 ml-6">
+                                            <div className="w-14 h-14 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-slate-700 ml-6">
                                                 <Store className="w-7 h-7 text-blue-500 dark:text-yellow-500" />
                                             </div>
                                             <div>
@@ -239,7 +239,7 @@ const getTotalSubStores = () =>
                                                 : 'bg-gray-100 text-gray-400 dark:bg-slate-700/20 dark:text-slate-400'
                                                 }`}>
                                                 <AlertTriangle className="w-4 h-4" />
-                                                {getTotalAlerts()} Alerts
+                                                 {store.totalSubStoreAlerts}  Alerts 
                                             </div>
 
 
@@ -272,7 +272,7 @@ const getTotalSubStores = () =>
                                             return (
                                                 <div
                                                     key={subStore._id}
-                                                    className="flex justify-between items-center bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 p-4 rounded-xl transition cursor-pointer"
+                                                    className="flex justify-between items-center bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-600 p-4 rounded-xl transition cursor-pointer"
                                                     onClick={() =>
                                                         navigate(`/admin/locations/${store._id}`, {
                                                             state: { pageTitle: subStore.name },

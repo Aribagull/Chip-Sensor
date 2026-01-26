@@ -3,6 +3,8 @@ import { useParams, Link, useLocation } from "react-router-dom";
 import { Thermometer, MapPin, ArrowLeft, Edit2, X, Layers } from "lucide-react";
 import TemperatureChart from "../components/dashboard/TemperatureChart";
 import { getSensorById, updateSensorById } from "../Api/Sensors/AddSensor";
+import { getAllUsers } from "../Api/admin/customers";
+import { getMyStores } from "../Api/Stores/store";
 import { FiActivity, FiAlertCircle, FiThermometer } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import PulseLoader from "react-spinners/PulseLoader";
@@ -12,6 +14,7 @@ import PulseLoader from "react-spinners/PulseLoader";
 const SensorDetails: React.FC = () => {
   const { sensorId } = useParams<{ sensorId: string }>();
   const location = useLocation();
+  const state = location.state as { storeId?: string; subStoreId?: string; pageTitle?: string };
   const isAdmin = location.pathname.includes("/admin");
 
   const [sensor, setSensor] = useState<any>(null);
@@ -23,33 +26,85 @@ const SensorDetails: React.FC = () => {
 
 
 
-
-  // Local state for editable fields
   const [minTempF, setMinTempF] = useState<number>(0);
   const [maxTempF, setMaxTempF] = useState<number>(0);
   const [notificationOn, setNotificationOn] = useState<boolean>(false);
   const [deviceIp, setDeviceIp] = useState<string>("");
 
 
-  useEffect(() => {
-    if (sensorId) {
-      getSensorById(sensorId)
-        .then((res) => {
-          if (res.success && res.sensor) {
-            setSensor(res.sensor);
+ useEffect(() => {
+  const fetchSensor = async () => {
+    if (!sensorId) return;
+    setLoading(true);
 
-            setSensorName(res.sensor.sensorName || "");
-            setDeviceName(res.sensor.deviceName || "");
-            setDeviceIp(res.sensor.deviceIp || "");
-            setMinTempF(res.sensor.minTempF || 0);
-            setMaxTempF(res.sensor.maxTempF || 0);
-            setNotificationOn(res.sensor.notificationStatus === "on");
-          }
-        })
-        .finally(() => setLoading(false));
+    if (isAdmin) {
+      try {
+        const res = await getAllUsers(1, 100);
+        if (!res.success || !res.customers) return;
+
+        let sensorFound = null;
+        res.customers.forEach(customer => {
+          customer.stores?.forEach(store => {
+            store.subStores?.forEach(subStore => {
+              const s = subStore.sensors?.find(s => s._id === sensorId);
+              if (s) {
+                sensorFound = {
+                  ...s,
+                  customerName: customer.name,
+                  storeName: store.storeName,
+                  subStoreName: subStore.name
+                };
+              }
+            });
+          });
+        });
+
+        setSensor(sensorFound);
+      } catch (err) {
+        console.error(err);
+        setSensor(null);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Non-admin logic
+      const res = await getMyStores();
+      if (res.success && res.stores) {
+        const allSensors: any[] = [];
+        res.stores.forEach(store => {
+          store.subStores?.forEach(subStore => {
+            subStore.sensors?.forEach(sensor => {
+              allSensors.push({
+                ...sensor,
+                 storeId: store._id,        // add this
+        subStoreId: subStore._id,
+                storeName: store.storeName,
+                subStoreName: subStore.name,
+              });
+            });
+          });
+        });
+        const sensorFound = allSensors.find(s => s._id === sensorId);
+        setSensor(sensorFound || null);
+      }
+      setLoading(false);
     }
-  }, [sensorId]);
+  };
 
+  fetchSensor();
+}, [sensorId, isAdmin]);
+
+
+
+useEffect(() => {
+  if (editModalOpen && sensor) {
+    setSensorName(sensor.sensorName || "");
+    setDeviceName(sensor.deviceName || "");
+    setMinTempF(sensor.minTempF || 0);
+    setMaxTempF(sensor.maxTempF || 0);
+    setNotificationOn(sensor.notificationStatus === "on");
+  }
+}, [editModalOpen, sensor]);
 
   const validRecords =
   sensor?.temperatureRecords?.filter(
@@ -141,12 +196,23 @@ const avgTemp =
     <div className="p-6 min-h-screen bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-white">
       {/* Back Link */}
       <Link
-        to={isAdmin ? "/admin/locations/" : "/dashboard/locations"}
-        className="flex items-center w-48 border rounded-lg p-2 border-gray-500 hover:text-primary dark:hover:text-primary transition-colors mb-6 font-medium"
-      >
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Back to My Stores
-      </Link>
+  to={
+    isAdmin
+      ? sensor?.storeId
+        ? `/admin/locations/${sensor.storeId}`
+        : "/admin/locations"
+      : sensor?.storeId && sensor?.subStoreId
+        ? `/dashboard/locations/${sensor.storeId}/substores/${sensor.subStoreId}`
+        : "/dashboard/locations"
+  }
+  state={{ pageTitle: sensor?.storeName || "My Store" }}
+  className="flex items-center w-48 border rounded-lg p-2 border-gray-500 hover:text-primary dark:hover:text-primary transition-colors mb-6 font-medium"
+>
+  <ArrowLeft className="h-4 w-4 mr-1" />
+  Back to My Stores
+</Link>
+
+
 
 
       {/* Sensor Info Header */}
@@ -162,7 +228,7 @@ const avgTemp =
         <Layers className="h-6 w-6 text-gray-700 dark:text-blue-600" />
       </div>
       <span className="text-2xl lg:text-3xl font-semibold text-gray-900 dark:text-white">
-        {sensor.subStoreId?.name || "N/A"}
+        {sensor.subStoreName || "N/A"}
       </span>
     </div>
 
@@ -277,29 +343,24 @@ const avgTemp =
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-bold mb-2 text-xl text-green-500">
               <Thermometer className="h-5 w-5 mr-2 inline" />
-              {sensor.sensorName} - <span className='dark:text-gray-200 text-black'>{sensor.avgTempHours}h Temperature Data</span>
+              {sensor.sensorName} - <span className='dark:text-gray-200 text-black'>Temperature Grapgh</span>
             </h4>
 
 
             <p></p>
             <div className="flex gap-2">
               <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded font-bold">
-                Last {sensor.avgTempHours}h
+                Avg Temp {sensor.avgTempHours}h
               </span>
 
             </div>
           </div>
-          <TemperatureChart
-            data={chartData}
-            labels={validRecords.map((r: any) =>
-              new Date(r.recordedAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            )}
-            minTemp={minTemp}
-            maxTemp={maxTemp}
-          />
+         <TemperatureChart
+  records={sensor.temperatureRecords} 
+  minTemp={minTemp}
+  maxTemp={maxTemp}
+/>
+
 
         </div>
       </div>
@@ -330,22 +391,45 @@ const avgTemp =
         </div>
 
         {/* Recent Alerts */}
-        <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
-          <div className="flex items-center gap-2 mb-3">
-            <FiAlertCircle className="text-xl text-red-600 dark:text-red-400" />
-            <h3 className="text-lg font-semibold">Recent Alerts</h3>
-          </div>
-          <div className="flex items-center justify-between bg-gray-100 dark:bg-slate-700 p-3 rounded-lg">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-red-500 block"></span>
-              <div>
-                <p className="text-sm font-medium text-gray-800 dark:text-gray-200">Lab Refrigerator</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">22.1°C • High temp</p>
-              </div>
-            </div>
-            <span className="text-xs text-gray-400 dark:text-gray-500">Dec 31, 16:07</span>
-          </div>
+<div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+  <div className="flex items-center gap-2 mb-3">
+    <FiAlertCircle className="text-xl text-red-600 dark:text-red-400" />
+    <h3 className="text-lg font-semibold">Recent Alerts</h3>
+  </div>
+
+  <div className="space-y-2">
+    {sensor.totalAlerts > 0 ? (
+      <>
+        {/* Total Alerts */}
+        <div className="flex items-center justify-between bg-red-100 dark:bg-red-900/30 p-3 rounded-lg">
+          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Total Alerts</span>
+          <span className="text-sm font-semibold text-gray-900 dark:text-white">{sensor.totalAlerts}</span>
         </div>
+
+        {/* SMS Alerts */}
+        <div className="flex items-center justify-between bg-yellow-100 dark:bg-yellow-900/30 p-3 rounded-lg">
+          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">SMS Alerts</span>
+          <span className="text-sm font-semibold text-gray-900 dark:text-white">{sensor.alertsByChannel?.sms || 0}</span>
+        </div>
+
+        {/* Email Alerts */}
+        <div className="flex items-center justify-between bg-blue-100 dark:bg-blue-900/30 p-3 rounded-lg">
+          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Email Alerts</span>
+          <span className="text-sm font-semibold text-gray-900 dark:text-white">{sensor.alertsByChannel?.email || 0}</span>
+        </div>
+
+        {/* Alerts Last 7 Days */}
+        <div className="flex items-center justify-between bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
+          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Alerts Last 7 Days</span>
+          <span className="text-sm font-semibold text-gray-900 dark:text-white">{sensor.alertsLast7Days || 0}</span>
+        </div>
+      </>
+    ) : (
+      <p className="text-sm text-gray-500 dark:text-gray-400">No alerts recorded.</p>
+    )}
+  </div>
+</div>
+
 
         {/* Temperature Summary */}
         <div className="lg:col-span-1 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
