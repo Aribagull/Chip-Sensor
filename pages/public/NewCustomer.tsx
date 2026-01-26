@@ -206,7 +206,7 @@ const services = [
               Welcome Aboard! 🎉
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-              Welcome to A Cooler Solutions! You have successfully signed up. Once you log in, you will have access to your dashboard where you can view and manage your registered locations, track service requests, receive real-time alerts, and update your account preferences.
+              Welcome to A Cooler Service Company! You have successfully signed up. Once you log in, you will have access to your dashboard where you can view and manage your registered locations, track service requests, receive real-time alerts, and update your account preferences.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

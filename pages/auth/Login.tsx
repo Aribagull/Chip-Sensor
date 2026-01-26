@@ -237,7 +237,7 @@ const Login: React.FC<LoginProps> = ({ initialAdmin = false }) => {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-4 bg-slate-900 text-gray-400">
-                    New to A Cooler Solutions?
+                    New to A Cooler Service Company?
                   </span>
                 </div>
               </div>
@@ -284,7 +284,7 @@ const Login: React.FC<LoginProps> = ({ initialAdmin = false }) => {
             </div>
 
             <h2 className="text-3xl font-bold text-white mb-4">
-              {isAdmin ? 'Admin Control Center' : 'A Cooler Solutions'}
+              {isAdmin ? 'Admin Control Center' : 'A Cooler Service Company'}
             </h2>
             <p className="text-lg text-white/80 max-w-md mb-8">
               {isAdmin

@@ -18,6 +18,10 @@ import GetStartedSection from './Home/CtaSection';
 import Slider, { Settings } from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import logo1 from '../../Assets/client-logos/logo1.png';
+import logo2 from '../../Assets/client-logos/logo2.png';
+import logo3 from '../../Assets/client-logos/logo3.png';
+import logo4 from '../../Assets/client-logos/logo4.png';
 
 
  interface Testimonial {
@@ -27,27 +31,12 @@ import "slick-carousel/slick/slick-theme.css";
 }
 
 const logos = [
-    {
-      src: "https://icon-library.com/images/icon-logo-png/icon-logo-png-29.jpg",
-      label: "Investify",
-    },
-    {
-      src: "https://static.vecteezy.com/system/resources/thumbnails/029/571/045/small/blue-glass-style-3d-letter-s-png.png",
-      label: "Ximora",
-    },
-    {
-      src: "https://cdn-icons-png.freepik.com/256/17914/17914657.png?semt=ais_white_label",
-      label: "Knewish",
-    },
-    {
-      src: "https://www.pngmart.com/files/23/Free-Logos-PNG-Isolated-Pic.png",
-      label: "Upglam",
-    },
-    {
-      src: "https://static.vecteezy.com/system/resources/thumbnails/019/897/563/small/modern-real-estate-and-construction-logo-free-png.png",
-      label: "Nutril",
-    },
-  ];
+    { src: logo1, label: "Investify" },
+    { src: logo2, label: "Ximora" },
+     { src: logo4, label: "Upglam" },
+    { src: logo3, label: "Knewish" },
+   
+];
 
 
 
@@ -145,10 +134,6 @@ const Home: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left Content */}
             <div className="text-center lg:text-left lg:pt-24 pt-12">
-              <div className="inline-flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-                <Snowflake className="w-4 h-4 text-cyan-400 mr-2" />
-                <span className="text-sm text-cyan-100 font-medium">Trusted by 500+ businesses</span>
-              </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">
                 Professional
@@ -285,8 +270,11 @@ const Home: React.FC = () => {
       <div className="flex items-center gap-20">
         {logos.map((item, index) => (
           <div key={index} className="flex items-center gap-3 opacity-80">
-            <img src={item.src} alt={item.label} className="h-10 w-auto object-contain" />
-            <span className="text-gray-400 text-2xl font-semibold">{item.label}</span>
+             <img
+          src={item.src}
+          alt={item.label}
+          className={item.label === "Upglam" ? "h-16 w-auto object-contain" : "h-10 w-auto object-contain brightness-200"}
+        />
           </div>
         ))}
       </div>
@@ -299,34 +287,7 @@ const Home: React.FC = () => {
       </section>
       <WorkSection/>
       <AnalyticsSection/>
-     <div className="bg-black py-12 sm:py-16 pb-24 sm:pb-40 px-12 sm:px-10 lg:px-72">
-  <div className="w-full bg-black py-8 sm:py-10 px-2 sm:px-4 lg:px-10">
-    <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white text-center mb-4 sm:mb-6">
-      What Our Clients Say
-    </h2>
-
-    <p className="text-gray-300 text-center mb-4 sm:mb-6 max-w-md sm:max-w-xl mx-auto px-2 sm:px-0 text-sm sm:text-base">
-      Hear directly from our satisfied clients and see why they trust us for their solutions.
-    </p>
-  </div>
-
-  <Slider {...settings}>
-    {testimonials.map((t, i) => (
-      <div key={i} className="px-1 sm:px-3">
-        <div className="bg-[#0c0d25]/70 shadow-lg rounded-xl p-4 sm:p-6 text-center">
-          <img
-            src={t.image}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4"
-            alt={t.name}
-          />
-          <h3 className="text-white font-semibold mb-1 sm:mb-2 text-sm sm:text-base">{t.name}</h3>
-          <p className="text-gray-300 text-xs sm:text-sm">{t.text}</p>
-        </div>
-      </div>
-    ))}
-  </Slider>
-</div>
-
+     
 
       <section id="contact">
   <GetStartedSection/>

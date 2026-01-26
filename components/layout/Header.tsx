@@ -43,15 +43,16 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-24">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center">
+         <Link to="/" className="flex items-center">
   <img
     src={logo}
     alt="Logo"
-    className="h-20 w-auto mr-3"
+    className="h-14 w-auto mr-3"
   />
-  <span className="hidden md:inline-block text-2xl font-bold text-white">
-    A Cooler <span className="text-blue-400">Solutions</span>
-  </span>
+  <div className="hidden md:flex flex-col leading-none">
+    <span className="text-lg font-semibold text-white leading-none mt-1">A Cooler</span>
+    <span className="text-base text-blue-400 font-bold">Service Company</span>
+  </div>
 </Link>
 
 

@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-gray-400">
-              Professional refrigeration monitoring, maintenance, and repair services for businesses of all sizes.
+              Professional refrigeration maintenance and repair services, and monitoring for businesses of all sizes.
             </p>
           </div>
 
@@ -28,17 +28,14 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4 text-blue-400 mt-6">Contact Us</h3>
             <ul className="space-y-3">
-              <li className="flex items-start">
-                <MapPin className="h-5 w-5 mr-2 text-gray-400 mt-0.5" />
-                <span className="text-gray-300">123 Cooling Way, Frostville, AC 90210</span>
-              </li>
+             
               <li className="flex items-center">
                 <Phone className="h-5 w-5 mr-2 text-gray-400" />
-                <span className="text-gray-300">(555) 123-4567</span>
+                <span className="text-gray-300">(762) 207-7772</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-5 w-5 mr-2 text-gray-400" />
-                <span className="text-gray-300">support@acoolersolutions.com</span>
+                <span className="text-gray-300"> info@acoolerservice.com</span>
               </li>
             </ul>
           </div>
@@ -56,7 +53,7 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
-          &copy; {new Date().getFullYear()} A Cooler Solutions. All rights reserved.
+          &copy; {new Date().getFullYear()} A Cooler Service Company. All rights reserved.
         </div>
       </div>
 
